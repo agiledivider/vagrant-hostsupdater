@@ -1,7 +1,7 @@
 module VagrantPlugins
-  module HostUpdater
+  module HostsUpdater
     module Action
-      class UpdateHostsFile
+      class UpdateHosts
         #include HostsFile
 
         def initialize(app, env)

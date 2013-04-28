@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'vagrant/hostsupdater/version'
+require 'vagrant-hostsupdater/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "vagrant-hostsupdater"
-  spec.version       = Vagrant::Hostsupdater::VERSION
+  spec.version       = VagrantPlugins::HostsUpdater::VERSION
   spec.authors       = ["Falk Ku\314\210hnel"]
   spec.email         = ["fk@cogitatio.de"]
   spec.description   = %q{Enables Vagrant to update hosts file on the host machine}
