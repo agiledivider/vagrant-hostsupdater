@@ -1,31 +1,23 @@
+require_relative "../HostsUpdater"
 module VagrantPlugins
   module HostsUpdater
     module Action
       class UpdateHosts
-        #include HostsFile
+        include HostsUpdater
+
 
         def initialize(app, env)
           @app = app
           @machine = env[:machine]
-          # @logger = Log4r::Logger.new('vagrant::hostupdater::update_hosts_file')
+          @ui = env[:ui]
         end
 
         def call(env)
-          @loger.info "Updating"
-          # # check if machine is already active
-          # return @app.call(env) if @machine.id
-
-          # # check config to see if the hosts file should be update automatically
-          # return @app.call(env) unless @machine.config.hostmanager.enabled?
-          # @logger.info 'Updating /etc/hosts file automatically'
-
-          # # continue the action stack so the machine will be created
-          # @app.call(env)
-
-          # # update /etc/hosts file on each active machine
-          # machines = generate(@machine.env, @machine.provider_name)
-          # machines.each { |machine| update(machine) }
+          @ui.info "Checking for host entries"
+          @app.call(env)
+          addHostEntries()
         end
+
       end
     end
   end

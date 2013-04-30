@@ -2,6 +2,7 @@ module VagrantPlugins
   module HostsUpdater
     module Action
       class RemoveHosts
+        include HostsUpdater
 
         def initialize(app, env)
           @app = app
@@ -10,11 +11,10 @@ module VagrantPlugins
         end
 
         def call(env)
-          @ui.info "Updating"
-
+          @ui.info "Removing hosts"
+          @app.call(env)
+          removeHostEntries
         end
-
-
 
       end
     end

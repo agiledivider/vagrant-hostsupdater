@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module HostsUpadter
+  module HostsUpdater
     class Command < Vagrant.plugin('2', :command)
       #include HostsFile
 

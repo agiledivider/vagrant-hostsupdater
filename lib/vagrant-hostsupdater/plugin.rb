@@ -1,4 +1,5 @@
-
+require "vagrant-hostsupdater/Action/UpdateHosts"
+require "vagrant-hostsupdater/Action/RemoveHosts"
 
 module VagrantPlugins
   module HostsUpdater
@@ -14,21 +15,25 @@ module VagrantPlugins
         Config
       end
 
-      # action_hook(:hostmanager, :machine_action_up) do |hook|
-      #   hook.prepend(Action::UpdateHosts)
-      # end
+      action_hook(:hostsupdater, :machine_action_up) do |hook|
+        hook.append(Action::UpdateHosts)
+      end
 
-      # action_hook(:hostmanager, :machine_action_halt) do |hook|
-      #   hook.append(Action::UpdateHosts)
-      # end
+      action_hook(:hostsupdater, :machine_action_halt) do |hook|
+        hook.append(Action::RemoveHosts)
+      end
 
-      # action_hook(:hostmanager, :machine_action_suspend) do |hook|
-      #   hook.append(Action::UpdateHosts)
-      # end
+      action_hook(:hostsupdater, :machine_action_suspend) do |hook|
+        hook.append(Action::RemoveHosts)
+      end
 
-      # action_hook(:hostmanager, :machine_action_destroy) do |hook|
-      #   hook.append(Action::UpdateHosts)
-      # end
+      action_hook(:hostsupdater, :machine_action_destroy) do |hook|
+        hook.prepend(Action::RemoveHosts)
+      end
+
+      action_hook(:hostsupdater, :machine_action_reload) do |hook|
+        hook.append(Action::UpdateHosts)
+      end
 
       command(:hostsupdater) do
         require_relative 'command'
