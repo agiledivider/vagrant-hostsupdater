@@ -2,7 +2,7 @@ $:.unshift File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name          = "vagrant-hostsupdater"
-  s.version       = 0.1
+  s.version       = 0.2
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Falk Kühnel"
   s.email         = "fk@cogitatio.de"
