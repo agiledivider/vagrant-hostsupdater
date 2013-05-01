@@ -16,7 +16,10 @@ module VagrantPlugins
       end
 
       def getHostnames
-        hostnames = Array(@machine.config.vm.hostname).concat(@machine.config.hostsupdater.aliases)
+        hostnames = Array(@machine.config.vm.hostname)
+        if @machine.config.hostsupdater.aliases
+          hostnames.concat(@machine.config.hostsupdater.aliases)
+        end
         return hostnames
       end
 
