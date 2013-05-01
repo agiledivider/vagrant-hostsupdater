@@ -8,11 +8,11 @@ On **halt**, **suspend** and **destroy**, those entries will be removed again.
 
 ## Installation
 
-    $ vagrant install vagrant-hostsupdater
+    $ vagrant plugin install vagrant-hostsupdater
 
 Uninstall it with:
 
-    $ vagrant uninstall vagrant-hostsupdater
+    $ vagrant plugin uninstall vagrant-hostsupdater
 
 ## Usage
 
