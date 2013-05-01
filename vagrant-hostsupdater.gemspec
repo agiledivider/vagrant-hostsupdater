@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["fk@cogitatio.de"]
   spec.description   = %q{Enables Vagrant to update hosts file on the host machine}
   spec.summary       = %q{Enables Vagrant to update hosts file on the host machine}
-  spec.homepage      = "http://www.cogitatio.de"
+  spec.homepage      = "https://github.com/cogitatio/vagrant-hostsupdater"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
