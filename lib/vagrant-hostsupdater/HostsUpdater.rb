@@ -16,7 +16,7 @@ module VagrantPlugins
       end
 
       def getHostnames
-        hostnames = Array(@machine.config.vm.hostname)
+        hostnames = Array(@machine.config.vm.hostname).concat(@machine.config.hostsupdater.aliases)
         return hostnames
       end
 
@@ -29,10 +29,12 @@ module VagrantPlugins
         name = @machine.name
         entries = []
         ips.each do |ip|
-          hostEntry = host_entry(ip, hostnames, name, uuid)
-          escapedEntry = Regexp.quote(hostEntry)
-          if !hostsContents.match(/#{escapedEntry}/)
-            entries.push(hostEntry)
+          hostEntries = getHostEntries(ip, hostnames, name, uuid)
+          hostEntries.each do |hostEntry|
+            escapedEntry = Regexp.quote(hostEntry)
+            if !hostsContents.match(/#{escapedEntry}/)
+              entries.push(hostEntry)
+            end
           end
         end
         sudo(addToHosts(entries))
@@ -55,6 +57,14 @@ module VagrantPlugins
 
       def host_entry(ip, hostnames, name, uuid = self.uuid)
         %Q(#{ip}  #{hostnames.join(' ')}  #{signature(name, uuid)})
+      end
+
+      def getHostEntries(ip, hostnames, name, uuid = self.uuid)
+        entries = []
+        hostnames.each do |hostname|
+          entries.push(%Q(#{ip}  #{hostname}  #{signature(name, uuid)}))
+        end
+        return entries
       end
 
       def addToHosts(entries)

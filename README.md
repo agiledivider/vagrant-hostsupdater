@@ -6,6 +6,10 @@ On **up** and **reload** commands, it tries to add the information, if its not a
 
 On **halt**, **suspend** and **destroy**, those entries will be removed again.
 
+##  Versions
+### 0.0.3
+* added aliases config option to define additional hostnames
+
 ## Installation
 
     $ vagrant plugin install vagrant-hostsupdater
@@ -20,6 +24,7 @@ At the moment, the only things you need, are the hostname and a :private_network
 
 	$ config.vm.network :private_network, ip: "192.168.3.10"
  	$ config.vm.hostname = "www.testing.de"
+ 	$ config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
 
 This ip and the hostname will be used for the entry in the /etc/hosts file.
 
