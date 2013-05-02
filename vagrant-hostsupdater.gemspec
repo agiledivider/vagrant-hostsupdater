@@ -6,7 +6,7 @@ require 'vagrant-hostsupdater/version'
 Gem::Specification.new do |spec|
   spec.name          = "vagrant-hostsupdater"
   spec.version       = VagrantPlugins::HostsUpdater::VERSION
-  spec.authors       = ["Falk Ku\314\210hnel"]
+  spec.authors       = ["Falk Kühnel"]
   spec.email         = ["fk@cogitatio.de"]
   spec.description   = %q{Enables Vagrant to update hosts file on the host machine}
   spec.summary       = %q{Enables Vagrant to update hosts file on the host machine}
