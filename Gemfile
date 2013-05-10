@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Falk Kühnel"
   s.email         = "fk@cogitatio.de"
-  s.homepage      = "http://www.cogitatio.de"
+  s.homepage      = "https://github.com/cogitatio/vagrant-hostsupdater"
   s.summary       = "Enables Vagrant to update hosts file on the host machine"
   s.description   = "Enables Vagrant to update hosts file on the host machine"
 

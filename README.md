@@ -7,6 +7,8 @@ On **up** and **reload** commands, it tries to add the information, if its not a
 On **halt**, **suspend** and **destroy**, those entries will be removed again.
 
 ##  Versions
+### 0.0.4
+* fixed problem with removing hosts entries on destroy command (Thanks to Andy Bohne)
 ### 0.0.3
 * added aliases config option to define additional hostnames
 
