@@ -12,8 +12,8 @@ module VagrantPlugins
 
         def call(env)
           @ui.info "Removing hosts"
-          @app.call(env)
           removeHostEntries
+          @app.call(env)
         end
 
       end
