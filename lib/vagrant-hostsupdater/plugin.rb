@@ -35,6 +35,10 @@ module VagrantPlugins
         hook.append(Action::UpdateHosts)
       end
 
+      action_hook(:hostsupdater, :machine_action_resume) do |hook|
+        hook.append(Action::UpdateHosts)
+      end
+
       command(:hostsupdater) do
         require_relative 'command'
         Command
