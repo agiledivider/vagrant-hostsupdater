@@ -2,9 +2,12 @@
 
 This plugin adds an entry to your /etc/hosts file on the host system.
 
-On **up** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
+On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
 
-On **halt**, **suspend** and **destroy**, those entries will be removed again.
+On **halt** and **destroy**, those entries will be removed again.
+By setting the remove\_on\_suspend option, you can have them removed on **suspend**, too:
+
+    config.hostsupdater.remove_on_suspend = true
 
 ##  Versions
 ### 0.0.4
@@ -24,9 +27,9 @@ Uninstall it with:
 
 At the moment, the only things you need, are the hostname and a :private_network network with a fixed ip.
 
-	$ config.vm.network :private_network, ip: "192.168.3.10"
- 	$ config.vm.hostname = "www.testing.de"
- 	$ config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
+    config.vm.network :private_network, ip: "192.168.3.10"
+    config.vm.hostname = "www.testing.de"
+    config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
 
 This ip and the hostname will be used for the entry in the /etc/hosts file.
 
