@@ -10,8 +10,13 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
     config.hostsupdater.remove_on_suspend = true
 
 ##  Versions
+
+### 0.0.5
+* option added to not remove hosts on suspend, adding hosts on resume (Thanks to Svelix)
+
 ### 0.0.4
 * fixed problem with removing hosts entries on destroy command (Thanks to Andy Bohne)
+
 ### 0.0.3
 * added aliases config option to define additional hostnames
 
