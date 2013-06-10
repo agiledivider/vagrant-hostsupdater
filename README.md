@@ -11,6 +11,9 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
 ##  Versions
 
+### 0.0.6
+* no sudo, if /etc/hosts is writeable
+
 ### 0.0.5
 * option added to not remove hosts on suspend, adding hosts on resume (Thanks to Svelix)
 

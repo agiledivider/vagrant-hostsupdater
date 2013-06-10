@@ -36,11 +36,19 @@ module VagrantPlugins
           hostEntries.each do |hostEntry|
             escapedEntry = Regexp.quote(hostEntry)
             if !hostsContents.match(/#{escapedEntry}/)
+              @ui.info "pushing #{hostEntry}"
               entries.push(hostEntry)
             end
           end
         end
-        sudo(addToHosts(entries))
+        @ui.info entries
+        if !File.writable?("/etc/hosts")
+          sudo(addToHosts(entries))
+        else
+          command = addToHosts(entries)
+          @ui.info command
+          `#{command}`
+        end
 
       end
 
@@ -54,7 +62,11 @@ module VagrantPlugins
         if hostsContents.match(/#{escapedId}/)
             puts "removing uids"
             puts "#{removeFromHosts}"
-            sudo(removeFromHosts)
+            if !File.writable?("/etc/hosts")
+              sudo(removeFromHosts)
+            else
+              removeFromHosts
+            end
         end
       end
 
@@ -80,7 +92,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         hosts_path = '/etc/hosts'
         uuid = @machine.id
-        %Q(sed -e '/#{uuid}/ d' -ibak #{hosts_path})
+        %Q(sed -e '/#{uuid}/ d' -n #{hosts_path})
       end
 
 

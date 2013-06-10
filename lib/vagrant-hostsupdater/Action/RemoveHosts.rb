@@ -16,7 +16,7 @@ module VagrantPlugins
             @ui.info "Removing hosts"
             removeHostEntries
           else
-            @ui.info "Removing on suspend disabled"
+            @ui.info "Removing hosts on suspend disabled"
           end
           @app.call(env)
         end
