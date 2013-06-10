@@ -80,7 +80,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         hosts_path = '/etc/hosts'
         uuid = @machine.id
-        %Q(sed -e '/#{uuid}/ d' -ibak #{hosts_path})
+        %Q(sed -e '\\:#{uuid}:d' -ibak #{hosts_path})
       end
 
 
