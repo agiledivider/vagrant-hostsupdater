@@ -4,7 +4,17 @@ module VagrantPlugins
       def test
         puts "jawoll"
       end
+  
+	  class << self
+        def expand_path(relative_path, relative_to)
+		  File.expand_path(relative_path, relative_to)
+        end
 
+        def hosts_path
+          Vagrant::Util::Platform.windows? ? expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
+        end
+      end
+	  
       def getIps
         ips = []
         @machine.config.vm.networks.each do |network|
@@ -26,7 +36,7 @@ module VagrantPlugins
       def addHostEntries()
         ips = getIps
         hostnames = getHostnames
-        file = File.open("/etc/hosts", "rb")
+        file = File.open("#{HostsUpdater::hosts_path}", "rb")
         hostsContents = file.read
         uuid = @machine.id
         name = @machine.name
@@ -42,18 +52,17 @@ module VagrantPlugins
           end
         end
         @ui.info entries
-        if !File.writable?("/etc/hosts")
-          sudo(addToHosts(entries))
+        if !File.writable?("#{HostsUpdater::hosts_path}")
+		  sudo(addToHosts(entries))
         else
           command = addToHosts(entries)
-          @ui.info command
           `#{command}`
         end
 
       end
 
       def removeHostEntries
-        file = File.open("/etc/hosts", "rb")
+        file = File.open("#{HostsUpdater::hosts_path}", "rb")
         hostsContents = file.read
         uuid = @machine.id
         escapedId = Regexp.quote(uuid)
@@ -62,11 +71,14 @@ module VagrantPlugins
         if hostsContents.match(/#{escapedId}/)
             puts "removing uids"
             puts "#{removeFromHosts}"
-            if !File.writable?("/etc/hosts")
-              sudo(removeFromHosts)
+            if !File.writable?("#{HostsUpdater::hosts_path}")
+			  sudo(removeFromHosts)
             else
-              removeFromHosts
-            end
+			  command = removeFromHosts
+			  if !Vagrant::Util::Platform.windows?
+               `#{command}`
+              end
+			end
         end
       end
 
@@ -84,15 +96,26 @@ module VagrantPlugins
 
       def addToHosts(entries)
         return if entries.length == 0
-        hosts_path = '/etc/hosts'
+        #hosts_path = "/etc/hosts"
         content = entries.join("\n")
-        %Q(sh -c 'echo "#{content}" >>#{hosts_path}')
+        %Q(sh -c 'echo "#{content}" >>#{HostsUpdater::hosts_path}')
       end
 
       def removeFromHosts(options = {})
-        hosts_path = '/etc/hosts'
+        #hosts_path = "/etc/hosts"
         uuid = @machine.id
-        %Q(sed -e '/#{uuid}/ d' -n #{hosts_path})
+		if Vagrant::Util::Platform.windows?
+			# find and replace isn't going to work here as in the unix environment (no sed like application)
+			hosts = ""
+			FileUtils.copy HostsUpdater::hosts_path, "#{HostsUpdater::hosts_path}.bak"
+			File.open("#{HostsUpdater::hosts_path}").each do |line|
+			  hosts << line unless line.include?(uuid)
+			end
+			File.open("#{HostsUpdater::hosts_path}", "w") {|file| file.puts hosts }
+			""
+		else
+		  %Q(sed -e '/#{uuid}$/ d' -ibak #{HostsUpdater::hosts_path})
+		end
       end
 
 
@@ -103,11 +126,12 @@ module VagrantPlugins
 
       def sudo(command)
         return if !command
-        # if Util::Platform.windows?
-        #   `#{command}`
-        # else
+        if Vagrant::Util::Platform.windows?
+		  @ui.info command
+           `#{command}`
+        else
           `sudo #{command}`
-        # end
+        end
       end
     end
   end
