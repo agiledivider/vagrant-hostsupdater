@@ -92,7 +92,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         hosts_path = '/etc/hosts'
         uuid = @machine.id
-        %Q(sed -e '/#{uuid}/ d' -n #{hosts_path})
+        %Q(sed -i '' -e '/#{uuid}/ d' #{hosts_path})
       end
 
 
