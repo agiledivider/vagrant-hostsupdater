@@ -39,13 +39,7 @@ module VagrantPlugins
             end
           end
         end
-        if !File.writable?(@@hosts_path)
-          sudo(addToHosts(entries))
-        else
-          command = addToHosts(entries)
-          `#{command}`
-        end
-
+        addToHosts(entries)
       end
 
       def removeHostEntries
@@ -73,7 +67,15 @@ module VagrantPlugins
       def addToHosts(entries)
         return if entries.length == 0
         content = entries.join("\n")
-        %Q(sh -c 'echo "#{content}" >> #@@hosts_path')
+        if !File.writable?(@@hosts_path)
+          sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+        else
+          hostsFile = File.open(@@hosts_path, "a")
+          hostsFile.write(content)
+          hostsFile.close()
+        end
+
+
       end
 
       def removeFromHosts(options = {})
@@ -82,9 +84,12 @@ module VagrantPlugins
         if !File.writable?(@@hosts_path)
           sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
         else
-          output = `sed -e "/#{hashedId}/ d" #@@hosts_path`
+          hosts = ""
+          File.open(@@hosts_path).each do |line|
+            hosts << line unless line.include?(hashedId)
+          end
           hostsFile = File.open(@@hosts_path, "w")
-          hostsFile.write(output)
+          hostsFile.write(hosts)
           hostsFile.close()
         end
       end
