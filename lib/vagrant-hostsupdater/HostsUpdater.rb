@@ -43,6 +43,10 @@ module VagrantPlugins
       end
 
       def removeHostEntries
+        if !@machine.id
+          @ui.warn "No machine id, nothing removed from #@@hosts_path"
+          return
+        end
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id

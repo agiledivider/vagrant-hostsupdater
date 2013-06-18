@@ -11,6 +11,9 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
 ##  Versions
 
+### 0.0.9
+* bugfix: now not trying to remove anything if no machine id is given
+
 ### 0.0.8
 * trying to use proper windows hosts file
 
