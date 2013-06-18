@@ -11,6 +11,10 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
 ##  Versions
 
+### 0.0.7
+* using hashed uids now to identify hosts entries (you might need to remove previous hostentries manually)
+* fixed removing of host entries
+
 ### 0.0.6
 * no sudo, if /etc/hosts is writeable
 

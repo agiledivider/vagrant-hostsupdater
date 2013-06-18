@@ -56,17 +56,9 @@ module VagrantPlugins
         file = File.open("/etc/hosts", "rb")
         hostsContents = file.read
         uuid = @machine.id
-        escapedId = Regexp.quote(uuid)
-        puts "#{uuid}"
-        puts "#{escapedId}"
-        if hostsContents.match(/#{escapedId}/)
-            puts "removing uids"
-            puts "#{removeFromHosts}"
-            if !File.writable?("/etc/hosts")
-              sudo(removeFromHosts)
-            else
-              removeFromHosts
-            end
+        hashedId = Digest::MD5.hexdigest(uuid)
+        if hostsContents.match(/#{hashedId}/)
+            removeFromHosts
         end
       end
 
@@ -92,13 +84,22 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         hosts_path = '/etc/hosts'
         uuid = @machine.id
-        %Q(sed -i '' -e '/#{uuid}/ d' #{hosts_path})
+        hashedId = Digest::MD5.hexdigest(uuid)
+        if !File.writable?("/etc/hosts")
+          sudo(%Q(sed -i -e '/#{hashedId}/ d' #{hosts_path}))
+        else
+          output = `sed -e "/#{hashedId}/ d" #{hosts_path}`
+          hostsFile = File.open(hosts_path, "w")
+          hostsFile.write(output)
+          hostsFile.close()
+        end
       end
 
 
 
       def signature(name, uuid = self.uuid)
-        %Q(# VAGRANT: #{uuid} (#{name}))
+        hashedId = Digest::MD5.hexdigest(uuid)
+        %Q(# VAGRANT: #{hashedId} (#{name}) / #{uuid})
       end
 
       def sudo(command)
