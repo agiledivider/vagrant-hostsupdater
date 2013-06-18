@@ -1,9 +1,7 @@
 module VagrantPlugins
   module HostsUpdater
     module HostsUpdater
-      def test
-        puts "jawoll"
-      end
+      @@hosts_path = Vagrant::Util::Platform.windows? ? File.expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
 
       def getIps
         ips = []
@@ -36,24 +34,22 @@ module VagrantPlugins
           hostEntries.each do |hostEntry|
             escapedEntry = Regexp.quote(hostEntry)
             if !hostsContents.match(/#{escapedEntry}/)
-              @ui.info "pushing #{hostEntry}"
+              @ui.info "adding to (#@@hosts_path) : #{hostEntry}"
               entries.push(hostEntry)
             end
           end
         end
-        @ui.info entries
-        if !File.writable?("/etc/hosts")
+        if !File.writable?(@@hosts_path)
           sudo(addToHosts(entries))
         else
           command = addToHosts(entries)
-          @ui.info command
           `#{command}`
         end
 
       end
 
       def removeHostEntries
-        file = File.open("/etc/hosts", "rb")
+        file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
         hashedId = Digest::MD5.hexdigest(uuid)
@@ -76,20 +72,18 @@ module VagrantPlugins
 
       def addToHosts(entries)
         return if entries.length == 0
-        hosts_path = '/etc/hosts'
         content = entries.join("\n")
-        %Q(sh -c 'echo "#{content}" >>#{hosts_path}')
+        %Q(sh -c 'echo "#{content}" >> #@@hosts_path')
       end
 
       def removeFromHosts(options = {})
-        hosts_path = '/etc/hosts'
         uuid = @machine.id
         hashedId = Digest::MD5.hexdigest(uuid)
-        if !File.writable?("/etc/hosts")
-          sudo(%Q(sed -i -e '/#{hashedId}/ d' #{hosts_path}))
+        if !File.writable?(@@hosts_path)
+          sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
         else
-          output = `sed -e "/#{hashedId}/ d" #{hosts_path}`
-          hostsFile = File.open(hosts_path, "w")
+          output = `sed -e "/#{hashedId}/ d" #@@hosts_path`
+          hostsFile = File.open(@@hosts_path, "w")
           hostsFile.write(output)
           hostsFile.close()
         end
@@ -104,11 +98,11 @@ module VagrantPlugins
 
       def sudo(command)
         return if !command
-        # if Util::Platform.windows?
-        #   `#{command}`
-        # else
+        if Vagrant::Util::Platform.windows?
+          `#{command}`
+        else
           `sudo #{command}`
-        # end
+        end
       end
     end
   end
