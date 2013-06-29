@@ -12,7 +12,7 @@ module VagrantPlugins
 
         def call(env)
           machine_action = env[:machine_action]
-          if machine_action != :suspend || @machine.config.hostsupdater.remove_on_suspend
+          if machine_action != :suspend || false != @machine.config.hostsupdater.remove_on_suspend
             @ui.info "Removing hosts"
             removeHostEntries
           else
