@@ -4,10 +4,10 @@ This plugin adds an entry to your /etc/hosts file on the host system.
 
 On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
 
-On **halt** and **destroy**, those entries will be removed again.
-By setting the remove\_on\_suspend option, you can have them removed on **suspend**, too:
+On **halt**, **destroy**, and **suspend**, those entries will be removed again.
+By setting the remove\_on\_suspend option to `false`, **suspend** will not remove them:
 
-    config.hostsupdater.remove_on_suspend = true
+    config.hostsupdater.remove_on_suspend = false
 
 ##  Versions
 
