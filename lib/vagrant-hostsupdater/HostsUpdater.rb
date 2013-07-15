@@ -24,7 +24,7 @@ module VagrantPlugins
       def addHostEntries()
         ips = getIps
         hostnames = getHostnames
-        file = File.open("/etc/hosts", "rb")
+        file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
         name = @machine.name
