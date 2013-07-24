@@ -11,6 +11,9 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
 ##  Versions
 
+### 0.0.10
+* bugfix: wrong path on Windows systems (Thanks to Im0rtality)
+
 ### 0.0.9
 * bugfix: now not trying to remove anything if no machine id is given
 
