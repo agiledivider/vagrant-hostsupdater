@@ -1,4 +1,5 @@
 require "vagrant-hostsupdater/Action/UpdateHosts"
+require "vagrant-hostsupdater/Action/CacheHosts"
 require "vagrant-hostsupdater/Action/RemoveHosts"
 
 module VagrantPlugins
@@ -28,7 +29,11 @@ module VagrantPlugins
       end
 
       action_hook(:hostsupdater, :machine_action_destroy) do |hook|
-        hook.prepend(Action::RemoveHosts)
+        hook.prepend(Action::CacheHosts)
+      end
+
+      action_hook(:hostsupdater, :machine_action_destroy) do |hook|
+        hook.append(Action::RemoveHosts)
       end
 
       action_hook(:hostsupdater, :machine_action_reload) do |hook|
