@@ -42,14 +42,18 @@ module VagrantPlugins
         addToHosts(entries)
       end
 
+      def cacheHostEntries
+        @machine.config.hostsupdater.id = @machine.id
+      end
+
       def removeHostEntries
-        if !@machine.id
+        if !@machine.id and !@machine.config.hostsupdater.id
           @ui.warn "No machine id, nothing removed from #@@hosts_path"
           return
         end
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
-        uuid = @machine.id
+        uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if hostsContents.match(/#{hashedId}/)
             removeFromHosts
@@ -83,7 +87,7 @@ module VagrantPlugins
       end
 
       def removeFromHosts(options = {})
-        uuid = @machine.id
+        uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if !File.writable?(@@hosts_path)
           sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
