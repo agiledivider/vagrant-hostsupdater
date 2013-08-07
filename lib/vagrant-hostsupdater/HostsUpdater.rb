@@ -13,6 +13,9 @@ module VagrantPlugins
             @ui.info 'Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
+        if not ips.any?
+          ips.push( '127.0.0.1' )
+        end
         return ips
       end
 
