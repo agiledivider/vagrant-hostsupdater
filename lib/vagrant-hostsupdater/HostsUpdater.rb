@@ -74,16 +74,15 @@ module VagrantPlugins
 
       def addToHosts(entries)
         return if entries.length == 0
-        content = "\n" + entries.join("\n").strip
+        content = entries.join("\n").strip
         if !File.writable?(@@hosts_path)
           sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
         else
+          content = "\n" + content
           hostsFile = File.open(@@hosts_path, "a")
           hostsFile.write(content)
           hostsFile.close()
         end
-
-
       end
 
       def removeFromHosts(options = {})
