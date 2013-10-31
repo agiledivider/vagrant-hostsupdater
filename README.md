@@ -9,7 +9,30 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
     config.hostsupdater.remove_on_suspend = true
 
+
+
+## Installation
+
+    $ vagrant plugin install vagrant-hostsupdater
+
+Uninstall it with:
+
+    $ vagrant plugin uninstall vagrant-hostsupdater
+
+## Usage
+
+At the moment, the only things you need, are the hostname and a :private_network network with a fixed ip.
+
+    config.vm.network :private_network, ip: "192.168.3.10"
+    config.vm.hostname = "www.testing.de"
+    config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
+
+This ip and the hostname will be used for the entry in the /etc/hosts file.
+
 ##  Versions
+
+### 0.0.11
+* bugfix: Fix additional new lines being added to hosts file (Thanks to vincentmac)
 
 ### 0.0.10
 * bugfix: wrong path on Windows systems (Thanks to Im0rtality)
@@ -36,23 +59,6 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 ### 0.0.3
 * added aliases config option to define additional hostnames
 
-## Installation
-
-    $ vagrant plugin install vagrant-hostsupdater
-
-Uninstall it with:
-
-    $ vagrant plugin uninstall vagrant-hostsupdater
-
-## Usage
-
-At the moment, the only things you need, are the hostname and a :private_network network with a fixed ip.
-
-    config.vm.network :private_network, ip: "192.168.3.10"
-    config.vm.hostname = "www.testing.de"
-    config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
-
-This ip and the hostname will be used for the entry in the /etc/hosts file.
 
 ## Contributing
 
