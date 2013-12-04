@@ -17,7 +17,7 @@ module VagrantPlugins
       end
 
       action_hook(:hostsupdater, :machine_action_up) do |hook|
-        hook.append(Action::UpdateHosts)
+        hook.after(Vagrant::Action::Builtin::SetHostname, Action::UpdateHosts)
       end
 
       action_hook(:hostsupdater, :machine_action_halt) do |hook|
