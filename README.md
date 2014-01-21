@@ -31,6 +31,9 @@ This ip and the hostname will be used for the entry in the /etc/hosts file.
 
 ##  Versions
 
+### 0.0.12
+* Feature: Add support for private network dhcp
+
 ### 0.0.11
 * bugfix: Fix additional new lines being added to hosts file (Thanks to vincentmac)
 
