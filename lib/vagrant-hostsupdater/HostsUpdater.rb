@@ -7,7 +7,20 @@ module VagrantPlugins
         ips = []
         @machine.config.vm.networks.each do |network|
           key, options = network[0], network[1]
-          ip = options[:ip] if key == :private_network
+
+          if (key == :private_network)
+            if (options.has_key? :ip)
+              ip = options[:ip]
+            elsif (options.has_key? :type and options[:type] == :dhcp)
+              ifconfigResults = '';
+              @machine.communicate.execute("ifconfig eth1") do |type, data|
+                ifconfigResults += data if type == :stdout
+              end
+              
+              ip = /inet addr:(\d+\.\d+\.\d+\.\d+)/.match(ifconfigResults)
+              ip = ip[1] unless ip.nil?
+            end
+          end
           ips.push(ip) if ip
         end
         return ips
