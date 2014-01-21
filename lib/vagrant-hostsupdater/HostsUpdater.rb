@@ -9,20 +9,25 @@ module VagrantPlugins
           key, options = network[0], network[1]
 
           if (key == :private_network)
-            if (options.has_key? :ip)
-              ip = options[:ip]
-            elsif (options.has_key? :type and options[:type] == :dhcp)
-              ifconfigResults = '';
-              @machine.communicate.execute("ifconfig eth1") do |type, data|
-                ifconfigResults += data if type == :stdout
-              end
-              
-              ip = /inet addr:(\d+\.\d+\.\d+\.\d+)/.match(ifconfigResults)
-              ip = ip[1] unless ip.nil?
-            end
+            ip = options[:ip] if (options.has_key? :ip)
           end
           ips.push(ip) if ip
         end
+
+        # Add IPs from guest machine
+        buffer = '';
+        @machine.communicate.execute("ifconfig") do |type, data|
+          buffer += data if type == :stdout
+        end
+
+        ifconfigIPs = buffer.scan(/inet addr:(\d+\.\d+\.\d+\.\d+)/)
+        ifconfigIPs[1..ifconfigIPs.size].each { |ip|
+          ip = ip.first
+          next if ip == '127.0.0.1'
+
+          ips.push(ip) unless ips.include? ip
+        }
+
         return ips
       end
 
