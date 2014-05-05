@@ -10,6 +10,12 @@ module VagrantPlugins
           ip = options[:ip] if key == :private_network
           ips.push(ip) if ip
         end
+		
+		network = @machine.provider.driver.read_guest_ip
+		if network["ip"]
+		  ips.push( network["ip"] ) unless ips.include? network["ip"]
+		end
+		
         return ips
       end
 
