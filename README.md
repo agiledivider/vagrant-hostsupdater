@@ -21,13 +21,13 @@ Uninstall it with:
 
 ## Usage
 
-At the moment, the only things you need, are the hostname and a :private_network network with a fixed ip.
+You currently only need the `hostname` and a `:private_network` network with a fixed IP address.
 
     config.vm.network :private_network, ip: "192.168.3.10"
     config.vm.hostname = "www.testing.de"
     config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
 
-This ip and the hostname will be used for the entry in the /etc/hosts file.
+This IP address and the hostname will be used for the entry in the `/etc/hosts` file.
 
 ##  Versions
 
