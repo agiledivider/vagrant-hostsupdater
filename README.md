@@ -13,7 +13,11 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
 ## Installation
 
-    $ vagrant plugin install vagrant-hostsupdater
+    $ gem install rake # If rake isn't already installed
+    $ git clone https://github.com/ben-rosio/vagrant-hostsupdater.git
+    $ cd vagrant-hostsupdater
+    $ rake build
+    $ vagrant plugin install pkg/vagrant-hostsupdater-0.0.12.gem
 
 Uninstall it with:
 
@@ -23,11 +27,11 @@ Uninstall it with:
 
 At the moment, the only things you need, are the hostname and a :private_network network with a fixed ip.
 
-    config.vm.network :private_network, ip: "192.168.3.10"
+    config.vm.network :private_network, type: :dhcp
     config.vm.hostname = "www.testing.de"
     config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
 
-This ip and the hostname will be used for the entry in the /etc/hosts file.
+An IP gotten from DHCP and the hostname will be used for the entry in the /etc/hosts file.
 
 ##  Versions
 
