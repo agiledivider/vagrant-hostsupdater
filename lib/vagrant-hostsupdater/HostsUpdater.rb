@@ -16,7 +16,7 @@ module VagrantPlugins
 
         # Add IPs from guest machine
         buffer = '';
-        @machine.communicate.execute("ifconfig") do |type, data|
+        @machine.communicate.execute("/sbin/ifconfig") do |type, data|
           buffer += data if type == :stdout
         end
 
