@@ -6,6 +6,8 @@ On **up**, **resume** and **reload** commands, it tries to add the information, 
 
 On **halt** and **destroy**, those entries will be removed again.
 
+[![Gem Version](https://badge.fury.io/rb/vagrant-multi-hostsupdater.svg)](http://badge.fury.io/rb/vagrant-multi-hostsupdater)
+
 ## Installation
 
     $ vagrant plugin install vagrant-multi-hostsupdater
