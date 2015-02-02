@@ -13,23 +13,31 @@ module VagrantPlugins
         return ips
       end
 
-      def getHostnames
-        hostnames = Array(@machine.config.vm.hostname)
-        if @machine.config.hostsupdater.aliases
+      # Get hostnames by specific IP.
+      # This option is only valid if a Hash is provided 
+      # from the `config.hostsupdater.aliases` parameter
+      def getHostnames(ip=nil)
+
+        hostnames = []
+        if @machine.config.hostsupdater.aliases.is_a?(Hash)
+          hostnames = @machine.config.hostsupdater.aliases[ip] || hostnames
+        else
+          hostnames = Array(@machine.config.vm.hostname)
           hostnames.concat(@machine.config.hostsupdater.aliases)
         end
+
         return hostnames
       end
 
       def addHostEntries()
         ips = getIps
-        hostnames = getHostnames
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
         name = @machine.name
         entries = []
         ips.each do |ip|
+          hostnames = getHostnames(ip)
           hostEntries = getHostEntries(ip, hostnames, name, uuid)
           hostEntries.each do |hostEntry|
             escapedEntry = Regexp.quote(hostEntry)
