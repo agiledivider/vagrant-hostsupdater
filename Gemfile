@@ -1,12 +1,12 @@
 $:.unshift File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
-  s.name          = "vagrant-hostsupdater"
+  s.name          = "vagrant-multi-hostsupdater"
   s.version       = 0.2
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Falk Kühnel"
   s.email         = "fk@cogitatio.de"
-  s.homepage      = "https://github.com/cogitatio/vagrant-hostsupdater"
+  s.homepage      = "https://github.com/cogitatio/vagrant-multi-hostsupdater"
   s.summary       = "Enables Vagrant to update hosts file on the host machine"
   s.description   = "Enables Vagrant to update hosts file on the host machine"
 

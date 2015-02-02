@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module HostsUpdater
+  module MultiHostsUpdater
     class Config < Vagrant.plugin("2", :config)
 
         # Array of hostnames to add or a Map[String => Array] of IPs to hostnames.
