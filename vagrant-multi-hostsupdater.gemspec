@@ -6,11 +6,11 @@ require 'vagrant-multi-hostsupdater/version'
 Gem::Specification.new do |spec|
   spec.name          = "vagrant-multi-hostsupdater"
   spec.version       = VagrantPlugins::MultiHostsUpdater::VERSION
-  spec.authors       = ["Falk Kühnel"]
-  spec.email         = ["fk@cogitatio.de"]
+  spec.authors       = ["Matt Fellows"]
+  spec.email         = ["matt.fellows@onegeek.com.au"]
   spec.description   = %q{Enables Vagrant to update hosts file on the host machine}
   spec.summary       = %q{Enables Vagrant to update hosts file on the host machine}
-  spec.homepage      = "https://github.com/cogitatio/vagrant-multi-hostsupdater"
+  spec.homepage      = "https://github.com/SEEK-Jobs/vagrant-hostsupdater"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

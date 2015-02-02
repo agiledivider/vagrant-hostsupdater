@@ -13,11 +13,11 @@ By setting the remove\_on\_suspend option, you can have them removed on **suspen
 
 ## Installation
 
-    $ vagrant plugin install vagrant-hostsupdater
+    $ vagrant plugin install vagrant-multi-hostsupdater
 
 Uninstall it with:
 
-    $ vagrant plugin uninstall vagrant-hostsupdater
+    $ vagrant plugin uninstall vagrant-multi-hostsupdater
 
 ## Usage
 

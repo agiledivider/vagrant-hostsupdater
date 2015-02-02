@@ -1,5 +1,5 @@
-require "vagrant-hostsupdater/version"
-require "vagrant-hostsupdater/plugin"
+require "vagrant-multi-hostsupdater/version"
+require "vagrant-multi-hostsupdater/plugin"
 
 module VagrantPlugins
   module HostsUpdater

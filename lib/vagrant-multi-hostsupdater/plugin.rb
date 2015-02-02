@@ -1,6 +1,6 @@
-require "vagrant-hostsupdater/Action/UpdateHosts"
-require "vagrant-hostsupdater/Action/CacheHosts"
-require "vagrant-hostsupdater/Action/RemoveHosts"
+require "vagrant-multi-hostsupdater/Action/UpdateHosts"
+require "vagrant-multi-hostsupdater/Action/CacheHosts"
+require "vagrant-multi-hostsupdater/Action/RemoveHosts"
 
 module VagrantPlugins
   module HostsUpdater
