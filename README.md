@@ -1,4 +1,4 @@
-# Vagrant::Hostsupdater
+# Vagrant::MultiHostsUpdater
 
 This plugin adds an entry to your /etc/hosts file on the host system.
 
@@ -7,7 +7,7 @@ On **up**, **resume** and **reload** commands, it tries to add the information, 
 On **halt** and **destroy**, those entries will be removed again.
 By setting the remove\_on\_suspend option, you can have them removed on **suspend**, too:
 
-    config.hostsupdater.remove_on_suspend = true
+    config.multihostsupdater.remove_on_suspend = true
 
 
 
@@ -25,7 +25,7 @@ At the moment, the only things you need, are the hostname and a :private_network
 
     config.vm.network :private_network, ip: "192.168.3.10"
     config.vm.hostname = "www.testing.de"
-    config.hostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
+    config.multihostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
 
 This ip and the hostname will be used for the entry in the /etc/hosts file.
 

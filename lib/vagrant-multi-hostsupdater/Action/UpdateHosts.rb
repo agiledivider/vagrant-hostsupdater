@@ -1,9 +1,9 @@
-require_relative "../HostsUpdater"
+require_relative "../MultiHostsUpdater"
 module VagrantPlugins
-  module HostsUpdater
+  module MultiHostsUpdater
     module Action
       class UpdateHosts
-        include HostsUpdater
+        include MultiHostsUpdater
 
 
         def initialize(app, env)
@@ -13,8 +13,9 @@ module VagrantPlugins
         end
 
         def call(env)
-          @ui.info "Checking for host entries"
+          @ui.info "Checking for host entries with env #{env}"
           @app.call(env)
+          puts "about to call addhostentries"
           addHostEntries()
         end
 

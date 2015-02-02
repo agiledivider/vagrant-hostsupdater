@@ -3,48 +3,48 @@ require "vagrant-multi-hostsupdater/Action/CacheHosts"
 require "vagrant-multi-hostsupdater/Action/RemoveHosts"
 
 module VagrantPlugins
-  module HostsUpdater
+  module MultiHostsUpdater
     class Plugin < Vagrant.plugin('2')
-      name 'HostsUpdater'
+      name 'MultiHostsUpdater'
       description <<-DESC
         This plugin manages the /etc/hosts file for the host machine. An entry is
         created for the hostname attribute in the vm.config.
       DESC
 
-      config(:hostsupdater) do
+      config(:multihostsupdater) do
         require_relative 'config'
         Config
       end
 
-      action_hook(:hostsupdater, :machine_action_up) do |hook|
+      action_hook(:multihostsupdater, :machine_action_up) do |hook|
         hook.append(Action::UpdateHosts)
       end
 
-      action_hook(:hostsupdater, :machine_action_halt) do |hook|
+      action_hook(:multihostsupdater, :machine_action_halt) do |hook|
         hook.append(Action::RemoveHosts)
       end
 
-      action_hook(:hostsupdater, :machine_action_suspend) do |hook|
+      action_hook(:multihostsupdater, :machine_action_suspend) do |hook|
         hook.append(Action::RemoveHosts)
       end
 
-      action_hook(:hostsupdater, :machine_action_destroy) do |hook|
+      action_hook(:multihostsupdater, :machine_action_destroy) do |hook|
         hook.prepend(Action::CacheHosts)
       end
 
-      action_hook(:hostsupdater, :machine_action_destroy) do |hook|
+      action_hook(:multihostsupdater, :machine_action_destroy) do |hook|
         hook.append(Action::RemoveHosts)
       end
 
-      action_hook(:hostsupdater, :machine_action_reload) do |hook|
+      action_hook(:multihostsupdater, :machine_action_reload) do |hook|
         hook.append(Action::UpdateHosts)
       end
 
-      action_hook(:hostsupdater, :machine_action_resume) do |hook|
+      action_hook(:multihostsupdater, :machine_action_resume) do |hook|
         hook.append(Action::UpdateHosts)
       end
 
-      command(:hostsupdater) do
+      command(:multihostsupdater) do
         require_relative 'command'
         Command
       end

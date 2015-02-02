@@ -15,15 +15,15 @@ module VagrantPlugins
 
       # Get hostnames by specific IP.
       # This option is only valid if a Hash is provided 
-      # from the `config.MultiHostsUpdater.aliases` parameter
+      # from the `config.multihostsupdater.aliases` parameter
       def getHostnames(ip=nil)
 
         hostnames = []
-        if @machine.config.MultiHostsUpdater.aliases.is_a?(Hash)
-          hostnames = @machine.config.MultiHostsUpdater.aliases[ip] || hostnames
+        if @machine.config.multihostsupdater.aliases.is_a?(Hash)
+          hostnames = @machine.config.multihostsupdater.aliases[ip] || hostnames
         else
           hostnames = Array(@machine.config.vm.hostname)
-          hostnames.concat(@machine.config.MultiHostsUpdater.aliases)
+          hostnames.concat(@machine.config.multihostsupdater.aliases)
         end
 
         return hostnames
@@ -51,17 +51,17 @@ module VagrantPlugins
       end
 
       def cacheHostEntries
-        @machine.config.MultiHostsUpdater.id = @machine.id
+        @machine.config.multihostsupdater.id = @machine.id
       end
 
       def removeHostEntries
-        if !@machine.id and !@machine.config.MultiHostsUpdater.id
+        if !@machine.id and !@machine.config.multihostsupdater.id
           @ui.warn "No machine id, nothing removed from #@@hosts_path"
           return
         end
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
-        uuid = @machine.id || @machine.config.MultiHostsUpdater.id
+        uuid = @machine.id || @machine.config.multihostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if hostsContents.match(/#{hashedId}/)
             removeFromHosts
@@ -94,7 +94,7 @@ module VagrantPlugins
       end
 
       def removeFromHosts(options = {})
-        uuid = @machine.id || @machine.config.MultiHostsUpdater.id
+        uuid = @machine.id || @machine.config.multihostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if !File.writable?(@@hosts_path)
           sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
