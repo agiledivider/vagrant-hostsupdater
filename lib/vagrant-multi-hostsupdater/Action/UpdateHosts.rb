@@ -5,7 +5,6 @@ module VagrantPlugins
       class UpdateHosts
         include MultiHostsUpdater
 
-
         def initialize(app, env)
           @app = app
           @machine = env[:machine]
@@ -13,9 +12,8 @@ module VagrantPlugins
         end
 
         def call(env)
-          @ui.info "Checking for host entries with env #{env}"
+          @ui.info "Checking for host entries"
           @app.call(env)
-          puts "about to call addhostentries"
           addHostEntries()
         end
 

@@ -1,15 +1,10 @@
 # Vagrant::MultiHostsUpdater
 
-This plugin adds an entry to your /etc/hosts file on the host system.
+This plugin adds an entry to your `/etc/hosts` file on the host system.
 
-On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
+On **up**, **resume** and **reload** commands, it tries to add the information, if it doesn't exist in your hosts file. If it needs to be added, you may be asked for an administrator password, as it requires root privileges to modify it.
 
 On **halt** and **destroy**, those entries will be removed again.
-By setting the remove\_on\_suspend option, you can have them removed on **suspend**, too:
-
-    config.multihostsupdater.remove_on_suspend = true
-
-
 
 ## Installation
 
@@ -27,37 +22,22 @@ At the moment, the only things you need, are the hostname and a :private_network
     config.vm.hostname = "www.testing.de"
     config.multihostsupdater.aliases = ["alias.testing.de", "alias2.somedomain.com"]
 
-This ip and the hostname will be used for the entry in the /etc/hosts file.
+### Multiple private network adapters
 
-##  Versions
+If you have multiple network adapters you can specify which hostnames are bound to which IP by passing a `Map[String]Array` mapping the IP of the network to an array of hostnames to create. eg:
 
-### 0.0.11
-* bugfix: Fix additional new lines being added to hosts file (Thanks to vincentmac)
+    config.vm.multihostsupdater.aliases = {'10.0.0.1' => ['foo.com', 'bar.com'], '10.0.0.2' => ['baz.com', 'bat.com']}
 
-### 0.0.10
-* bugfix: wrong path on Windows systems (Thanks to Im0rtality)
+This will produce host entries like so:
 
-### 0.0.9
-* bugfix: now not trying to remove anything if no machine id is given
+    10.0.0.1 foo.com
+    10.0.0.2 bar.com
 
-### 0.0.8
-* trying to use proper windows hosts file
+### Remove on a `vagrant suspend`
 
-### 0.0.7
-* using hashed uids now to identify hosts entries (you might need to remove previous hostentries manually)
-* fixed removing of host entries
+By setting the `remove_on_suspend` option, you can have them removed on **suspend**, too:
 
-### 0.0.6
-* no sudo, if /etc/hosts is writeable
-
-### 0.0.5
-* option added to not remove hosts on suspend, adding hosts on resume (Thanks to Svelix)
-
-### 0.0.4
-* fixed problem with removing hosts entries on destroy command (Thanks to Andy Bohne)
-
-### 0.0.3
-* added aliases config option to define additional hostnames
+    config.multihostsupdater.remove_on_suspend = true
 
 
 ## Contributing
