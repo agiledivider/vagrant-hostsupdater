@@ -1,6 +1,6 @@
 module VagrantPlugins
-  module HostsUpdater
-    module HostsUpdater
+  module MultiHostsUpdater
+    module MultiHostsUpdater
       @@hosts_path = Vagrant::Util::Platform.windows? ? File.expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
 
       def getIps
@@ -15,15 +15,15 @@ module VagrantPlugins
 
       # Get hostnames by specific IP.
       # This option is only valid if a Hash is provided 
-      # from the `config.hostsupdater.aliases` parameter
+      # from the `config.MultiHostsUpdater.aliases` parameter
       def getHostnames(ip=nil)
 
         hostnames = []
-        if @machine.config.hostsupdater.aliases.is_a?(Hash)
-          hostnames = @machine.config.hostsupdater.aliases[ip] || hostnames
+        if @machine.config.MultiHostsUpdater.aliases.is_a?(Hash)
+          hostnames = @machine.config.MultiHostsUpdater.aliases[ip] || hostnames
         else
           hostnames = Array(@machine.config.vm.hostname)
-          hostnames.concat(@machine.config.hostsupdater.aliases)
+          hostnames.concat(@machine.config.MultiHostsUpdater.aliases)
         end
 
         return hostnames
@@ -51,17 +51,17 @@ module VagrantPlugins
       end
 
       def cacheHostEntries
-        @machine.config.hostsupdater.id = @machine.id
+        @machine.config.MultiHostsUpdater.id = @machine.id
       end
 
       def removeHostEntries
-        if !@machine.id and !@machine.config.hostsupdater.id
+        if !@machine.id and !@machine.config.MultiHostsUpdater.id
           @ui.warn "No machine id, nothing removed from #@@hosts_path"
           return
         end
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
-        uuid = @machine.id || @machine.config.hostsupdater.id
+        uuid = @machine.id || @machine.config.MultiHostsUpdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if hostsContents.match(/#{hashedId}/)
             removeFromHosts
@@ -94,7 +94,7 @@ module VagrantPlugins
       end
 
       def removeFromHosts(options = {})
-        uuid = @machine.id || @machine.config.hostsupdater.id
+        uuid = @machine.id || @machine.config.MultiHostsUpdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if !File.writable?(@@hosts_path)
           sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
