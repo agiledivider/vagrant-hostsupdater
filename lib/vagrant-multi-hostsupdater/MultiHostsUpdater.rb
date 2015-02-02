@@ -17,7 +17,8 @@ module VagrantPlugins
       # This option is only valid if a Hash is provided 
       # from the `config.multihostsupdater.aliases` parameter
       def getHostnames(ip=nil)
-
+puts "ip #{ip}"
+puts "aliases: #{@machine.config.multihostsupdater.aliases}"
         hostnames = []
         if @machine.config.multihostsupdater.aliases.is_a?(Hash)
           hostnames = @machine.config.multihostsupdater.aliases[ip] || hostnames
@@ -25,12 +26,15 @@ module VagrantPlugins
           hostnames = Array(@machine.config.vm.hostname)
           hostnames.concat(@machine.config.multihostsupdater.aliases)
         end
+        puts "Hostnames #{hostnames}"
 
         return hostnames
       end
 
       def addHostEntries()
+        puts "in host entries"
         ips = getIps
+        puts "in host entries: ips #{ips}"
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
