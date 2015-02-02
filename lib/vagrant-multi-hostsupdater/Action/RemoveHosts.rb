@@ -1,8 +1,8 @@
 module VagrantPlugins
-  module HostsUpdater
+  module MultiHostsUpdater
     module Action
       class RemoveHosts
-        include HostsUpdater
+        include MultiHostsUpdater
 
         def initialize(app, env)
           @app = app
@@ -13,7 +13,7 @@ module VagrantPlugins
         def call(env)
           machine_action = env[:machine_action]
           if machine_action != :destroy || !@machine.id
-            if machine_action != :suspend || @machine.config.hostsupdater.remove_on_suspend
+            if machine_action != :suspend || @machine.config.multihostsupdater.remove_on_suspend
               @ui.info "Removing hosts"
               removeHostEntries
             else

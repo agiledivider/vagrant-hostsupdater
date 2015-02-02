@@ -1,21 +1,17 @@
-require_relative "../HostsUpdater"
 module VagrantPlugins
-  module HostsUpdater
+  module MultiHostsUpdater
     module Action
-      class UpdateHosts
-        include HostsUpdater
-
+      class CacheHosts
+        include MultiHostsUpdater
 
         def initialize(app, env)
           @app = app
           @machine = env[:machine]
-          @ui = env[:ui]
         end
 
         def call(env)
-          @ui.info "Checking for host entries"
+          cacheHostEntries
           @app.call(env)
-          addHostEntries()
         end
 
       end
