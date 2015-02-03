@@ -20,8 +20,8 @@ module VagrantPlugins
         hostnames = []
         if @machine.config.multihostsupdater.aliases.is_a?(Hash)
           hostnames = @machine.config.multihostsupdater.aliases[ip] || hostnames
-        else
-          hostnames = Array(@machine.config.vm.hostname)
+        elsif @machine.config.multihostsupdater.aliases.is_a?(Array)
+          hostnames = Array(@machine.config.vm.hostname) if !@machine.config.vm.hostname.nil?
           hostnames.concat(@machine.config.multihostsupdater.aliases)
         end
 
