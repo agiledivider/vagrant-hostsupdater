@@ -5,11 +5,26 @@ This plugin adds an entry to your /etc/hosts file on the host system.
 On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
 
 On **halt** and **destroy**, those entries will be removed again.
-By setting the remove\_on\_suspend option, you can have them removed on **suspend**, too:
+
+## Remove on suspend
+
+By setting the `remove_on_suspend` option, you can have them removed on **suspend**, too:
 
     config.hostsupdater.remove_on_suspend = true
 
+## Skipping hostupdater
 
+To skip adding some entries to the /etc/hosts file add `hostsupdater: "skip"` option to network configuration:
+
+    config.vm.network :private_network, ip: "172.21.9.9", hostsupdater: "skip"
+
+Example:
+
+    config.vm.network :private_network, ip: "192.168.50.4"
+    config.vm.network :private_network,
+        ip: "172.21.9.9",
+        netmask: "255.255.240.0",
+        hostsupdater: "skip"
 
 ## Installation
 
