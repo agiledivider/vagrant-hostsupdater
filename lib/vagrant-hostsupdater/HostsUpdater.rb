@@ -10,6 +10,12 @@ module VagrantPlugins
           ip = options[:ip] if key == :private_network
           ips.push(ip) if ip
         end
+
+        if @machine.provider_name == :lxc
+          ip = @machine.provider.capability(:public_address)
+          ips.push(ip)
+        end
+
         return ips
       end
 
