@@ -20,6 +20,10 @@ module VagrantPlugins
         hook.append(Action::UpdateHosts)
       end
 
+      action_hook(:hostsupdater, :machine_action_provision) do |hook|
+        hook.append(Action::UpdateHosts)
+      end
+
       action_hook(:hostsupdater, :machine_action_halt) do |hook|
         hook.append(Action::RemoveHosts)
       end
