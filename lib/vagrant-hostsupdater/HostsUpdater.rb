@@ -76,7 +76,10 @@ module VagrantPlugins
         return if entries.length == 0
         content = entries.join("\n").strip
         if !File.writable?(@@hosts_path)
-          sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+          if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+            STDERR.puts "Failed to add hosts, could not use sudo"
+            adviseOnSudo
+          end
         else
           content = "\n" + content
           hostsFile = File.open(@@hosts_path, "a")
@@ -89,7 +92,10 @@ module VagrantPlugins
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if !File.writable?(@@hosts_path)
-          sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
+          if !sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
+            STDERR.puts "Failed to remove hosts, could not use sudo"
+            adviseOnSudo
+          end
         else
           hosts = ""
           File.open(@@hosts_path).each do |line|
@@ -113,8 +119,19 @@ module VagrantPlugins
         if Vagrant::Util::Platform.windows?
           `#{command}`
         else
-          `sudo #{command}`
+          return system("sudo #{command}")
         end
+      end
+
+      def adviseOnSudo
+        STDERR.puts "Consider adding the following to your sudoers file."
+        STDERR.puts "(Run `visudo` and paste the following at the bottom.)"
+        STDERR.puts <<-end_of_advice
+          # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
+          Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
+          Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
+          #{ENV['USER']} ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
+        end_of_advice
       end
     end
   end
