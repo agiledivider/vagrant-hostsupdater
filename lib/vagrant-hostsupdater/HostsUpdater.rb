@@ -5,10 +5,14 @@ module VagrantPlugins
 
       def getIps
         ips = []
-        @machine.config.vm.networks.each do |network|
-          key, options = network[0], network[1]
-          ip = options[:ip] if key == :private_network
-          ips.push(ip) if ip
+        if ip = getAwsPublicIp
+          ips.push(ip)
+        else
+          @machine.config.vm.networks.each do |network|
+            key, options = network[0], network[1]
+            ip = options[:ip] if key == :private_network
+            ips.push(ip) if ip
+          end
         end
         return ips
       end
@@ -114,6 +118,26 @@ module VagrantPlugins
           `#{command}`
         else
           `sudo #{command}`
+        end
+      end
+
+      
+      private
+
+      def getAwsPublicIp
+        aws_conf = @machine.config.vm.get_provider_config(:aws)
+        return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
+        filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
+        return nil if filters == ''
+        cmd = 'aws ec2 describe-instances --filter '+filters
+        stdout, stderr, stat = Open3.capture3(cmd)
+        @ui.error sprintf("Failed to execute '%s' : %s", cmd, stderr) if stderr != ''
+        return nil if stat.exitstatus != 0
+        begin
+          return JSON.parse(stdout)["Reservations"].first()["Instances"].first()["PublicIpAddress"]
+        rescue => e
+          @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
+          return nil
         end
       end
     end
