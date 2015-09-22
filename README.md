@@ -29,6 +29,25 @@ At the moment, the only things you need, are the hostname and a :private_network
 
 This ip and the hostname will be used for the entry in the /etc/hosts file.
 
+## For AWS
+
+If you'd like AWS as a provider using [vagrant-aws](https://github.com/mitchellh/vagrant-aws) or other plugin,
+this plugin will detect the instance public IP by the tag infomations.  
+For example, [vagrant-aws](https://github.com/mitchellh/vagrant-aws) configures a tag infomations like the following.
+
+    config.vm.provider :aws do |aws, override|
+      aws.tags = {
+        "Name" => "vagrant",
+        ...
+      }
+      aws.elastic_ip = true
+      ...
+    end
+
+* [AWS CLI](https://aws.amazon.com/cli/) is required
+* Make the tag infomations be unique for the instance
+* Enable Elastic IP for the instance
+
 ##  Versions
 
 ### 0.0.11
