@@ -3,6 +3,8 @@
 [![Gem Version](https://badge.fury.io/rb/vagrant-hostsupdater.svg)](https://badge.fury.io/rb/vagrant-hostsupdater)
 [![Gem](https://img.shields.io/gem/dt/vagrant-hostsupdater.svg)](https://rubygems.org/gems/vagrant-hostsupdater)
 [![Gem](https://img.shields.io/gem/dtv/vagrant-hostsupdater.svg)](https://rubygems.org/gems/vagrant-hostsupdater)
+
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cogitatio/vagrant-hostsupdater?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/cogitatio/vagrant-hostsupdater.svg?style=social)](https://twitter.com/intent/tweet?text=Checkout%20this%20awesome%20Vagrant%20plugin!&url=https%3A%2F%2Fgithub.com%2Fcogiatio%2Fvagrant-hostsupdater&hashtags=hostsupdater,vagrant)
 
 
