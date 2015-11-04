@@ -1,5 +1,7 @@
 # Vagrant::Hostsupdater
 
+[![Join the chat at https://gitter.im/cogitatio/vagrant-hostsupdater](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cogitatio/vagrant-hostsupdater?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This plugin adds an entry to your /etc/hosts file on the host system.
 
 On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
