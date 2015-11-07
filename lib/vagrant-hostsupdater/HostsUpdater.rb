@@ -7,7 +7,7 @@ module VagrantPlugins
         ips = []
         @machine.config.vm.networks.each do |network|
           key, options = network[0], network[1]
-          ip = options[:ip] if key == :private_network
+          ip = options[:ip] if key == :private_network && options[:hostsupdater] != "skip"
           ips.push(ip) if ip
         end
         return ips
