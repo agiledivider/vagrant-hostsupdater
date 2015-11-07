@@ -22,7 +22,7 @@ module VagrantPlugins
       end
 
       action_hook(:hostsupdater, :machine_action_provision) do |hook|
-        hook.prepend(Action::UpdateHosts)
+        hook.before(Vagrant::Action::Builtin::Provision, Action::UpdateHosts)
       end
 
       action_hook(:hostsupdater, :machine_action_halt) do |hook|
