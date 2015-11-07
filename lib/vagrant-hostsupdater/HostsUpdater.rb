@@ -7,7 +7,7 @@ module VagrantPlugins
         ips = []
         @machine.config.vm.networks.each do |network|
           key, options = network[0], network[1]
-          ip = options[:ip] if key == :private_network && options[:hostsupdater] != "skip"
+          ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
           ips.push(ip) if ip
         end
         return ips
@@ -75,7 +75,7 @@ module VagrantPlugins
       def addToHosts(entries)
         return if entries.length == 0
         content = entries.join("\n").strip.concat("\n")
-        if !File.writable?(@@hosts_path)
+        if !File.writable_real?(@@hosts_path)
           sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
         else
           content = "\n" + content
@@ -88,7 +88,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
-        if !File.writable?(@@hosts_path)
+        if !File.writable_real?(@@hosts_path)
           sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
         else
           hosts = ""
