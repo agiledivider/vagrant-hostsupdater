@@ -53,11 +53,14 @@ This IP address and the hostname will be used for the entry in the `/etc/hosts` 
 
 ### 1.0.0
 * Stable release
-* Defaults `remove_on_suspend` to true
-* Added `skip` flag
-* Hosts update on provision action
-* [#47] Fixes writable issue on OSX
-* Using Semantic Versioning for version number
+* Feature: Added `skip` flag [#69]
+* Feature: Hosts update on provision action [#65]
+* Bugfix: `remove_on_suspend` should be true [#19]
+* Bugfix: Line break not inserted before first host [#37]
+* Bugfix: Old changes not removed in linux [#67]
+* Bugfix: Writable issue on OSX [#47]
+* Bugfix: Update hosts before provisioning [#31]
+* Misc: Using Semantic Versioning for version number
 
 ### 0.0.11
 * bugfix: Fix additional new lines being added to hosts file (Thanks to vincentmac)
@@ -87,6 +90,17 @@ This IP address and the hostname will be used for the entry in the `/etc/hosts` 
 ### 0.0.3
 * added aliases config option to define additional hostnames
 
+## Installing development version
+
+If you would like to install vagrant-hostsupdater on the development version perform the following:
+
+```
+git clone https://github.com/cogitatio/vagrant-hostsupdater
+cd vagrant-hostsupdater
+git checkout develop
+rake build
+vagrant plugin install vagrant-hostsupdater-*.gem
+```
 
 ## Contributing
 
@@ -94,4 +108,4 @@ This IP address and the hostname will be used for the entry in the `/etc/hosts` 
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+5. Create new Pull Request on the `develop` branch
