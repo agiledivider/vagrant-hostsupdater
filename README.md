@@ -56,6 +56,7 @@ This IP address and the hostname will be used for the entry in the `/etc/hosts` 
 * Defaults `remove_on_suspend` to true
 * Added `skip` flag
 * Hosts update on provision action
+* [#47] Fixes writable issue on OSX
 * Using Semantic Versioning for version number
 
 ### 0.0.11
