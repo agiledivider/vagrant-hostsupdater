@@ -9,6 +9,9 @@ module VagrantPlugins
           key, options = network[0], network[1]
           ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
           ips.push(ip) if ip
+          if options[:hostsupdater] == 'skip'
+            @ui.info 'Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+          end
         end
         return ips
       end

@@ -1,15 +1,9 @@
-$:.unshift File.expand_path("../lib", __FILE__)
+source 'https://rubygems.org'
 
-Gem::Specification.new do |s|
-  s.name          = "vagrant-hostsupdater"
-  s.version       = '1.0.0'
-  s.license       = 'MIT'
-  s.platform      = Gem::Platform::RUBY
-  s.authors       = ["Falk Kühnel", "Chris Smith"]
-  s.email         = ["fk@cogitatio.de", "chris@cgsmith.net"]
-  s.homepage      = "https://github.com/cogitatio/vagrant-hostsupdater"
-  s.summary       = "Enables Vagrant to update hosts file on the host machine"
-  s.description   = "Enables Vagrant to update hosts file on the host machine"
+group :development do
+  gem 'vagrant', :git => 'git://github.com/mitchellh/vagrant.git', :tag => 'v1.6.2'
+end
 
-
+group :plugins do
+  gemspec
 end
