@@ -91,7 +91,7 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 * Stable release
 * Feature: Added `skip` flag [#69](/../../issues/69)
 * Feature: Hosts update on provision action [#65](/../../issues/65)
-* Bugfix: `remove_on_suspend` should be true [#19](/../../issues/19(
+* Bugfix: `remove_on_suspend` should be true [#19](/../../issues/19)
 * Bugfix: Line break not inserted before first host [#37](/../../issues/37)
 * Bugfix: Old changes not removed in linux [#67](/../../issues/67)
 * Bugfix: Writable issue on OSX [#47](/../../issues/47)
