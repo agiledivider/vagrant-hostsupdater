@@ -17,7 +17,12 @@ module VagrantPlugins
       end
 
       action_hook(:hostsupdater, :machine_action_up) do |hook|
-        hook.append(Action::UpdateHosts)
+        hook.prepend(Action::RemoveHosts)
+        hook.after(Action::RemoveHosts, Action::UpdateHosts)
+      end
+
+      action_hook(:hostsupdater, :machine_action_provision) do |hook|
+        hook.before(Vagrant::Action::Builtin::Provision, Action::UpdateHosts)
       end
 
       action_hook(:hostsupdater, :machine_action_halt) do |hook|
@@ -37,10 +42,12 @@ module VagrantPlugins
       end
 
       action_hook(:hostsupdater, :machine_action_reload) do |hook|
+        hook.prepend(Action::RemoveHosts)
         hook.append(Action::UpdateHosts)
       end
 
       action_hook(:hostsupdater, :machine_action_resume) do |hook|
+        hook.prepend(Action::RemoveHosts)
         hook.append(Action::UpdateHosts)
       end
 
