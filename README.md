@@ -88,6 +88,9 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 ## Versions
 
+### 1.0.1
+* Bugfix: Fixing `up` issue on initialize [#28](/../../issues/28)
+
 ### 1.0.0
 * Stable release
 * Feature: Added `skip` flag [#69](/../../issues/69)
