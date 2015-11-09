@@ -33,11 +33,13 @@ module VagrantPlugins
         name = @machine.name
         entries = []
         ips.each do |ip|
-          hostEntries = getHostEntries(ip, hostnames, name, uuid)
-          hostEntries.each do |hostEntry|
-            escapedEntry = Regexp.quote(hostEntry)
-            if !hostsContents.match(/#{escapedEntry}/)
-              @ui.info "adding to (#@@hosts_path) : #{hostEntry}"
+          hostnames.each do |hostname|
+            entryPattern = hostEntryPattern(ip, hostname)
+
+            if hostsContents.match(/#{entryPattern}/)
+              @ui.info "  found entry for: #{ip} #{hostname}"
+            else
+              hostEntry = createHostEntry(ip, hostname, name, uuid)
               entries.push(hostEntry)
             end
           end
@@ -67,17 +69,26 @@ module VagrantPlugins
         %Q(#{ip}  #{hostnames.join(' ')}  #{signature(name, uuid)})
       end
 
-      def getHostEntries(ip, hostnames, name, uuid = self.uuid)
-        entries = []
-        hostnames.each do |hostname|
-          entries.push(%Q(#{ip}  #{hostname}  #{signature(name, uuid)}))
-        end
-        return entries
+      def createHostEntry(ip, hostname, name, uuid = self.uuid)
+        %Q(#{ip}  #{hostname}  #{signature(name, uuid)})
+      end
+
+      # Create a regular expression that will match *any* entry describing the
+      # given IP/hostname pair. This is intentionally generic in order to
+      # recognize entries created by the end user.
+      def hostEntryPattern(ip, hostname)
+        Regexp.new('^\s*' + ip + '\s+' + hostname + '\s*(#.*)?$')
       end
 
       def addToHosts(entries)
         return if entries.length == 0
         content = entries.join("\n").strip.concat("\n")
+
+        @ui.info "Writing the following entries to (#@@hosts_path)"
+        @ui.info "  " + entries.join("\n  ")
+        @ui.info "This operation requires administrative access. You may " +
+          "skip it by manually adding equivalent entries to the hosts file."
+
         if !File.writable_real?(@@hosts_path)
           sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
         else
