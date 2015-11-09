@@ -55,13 +55,14 @@ Example:
 
 ## Passwordless sudo
 
-Add the following snippet to the sudoers file (for example, to `/etc/sudoers.d/vagrant_hostupdater`) to make it
+Add the following snippet to the top of the sudoers file using `sudo visudo`. It will make vagrant
 stop asking password when updating hosts file:
 
     # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
     Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
-    %sudo ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
+    %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
+    
         
 
 ## Installing development version
