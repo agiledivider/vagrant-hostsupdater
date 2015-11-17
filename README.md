@@ -10,7 +10,9 @@
 
 This plugin adds an entry to your /etc/hosts file on the host system.
 
-On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
+On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your 
+hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit 
+the file.
 
 On **halt**, **destroy**, and **suspend**, those entries will be removed again.
 By setting the `config.hostsupdater.remove_on_suspend  = false`, **suspend** will not remove them. 
@@ -53,7 +55,12 @@ Example:
         hostsupdater: "skip"
         
 
-## Passwordless sudo
+## Suppressing prompts for elevating privileges
+
+These prompts exist to prevent anything that is being run by the user from inadvertently updating the hosts file. 
+If you understand the risks that go with supressing them, here's how to do it.
+
+### Linux/OS X: Passwordless sudo
 
 Add the following snippet to the top of the sudoers file using `sudo visudo`. It will make vagrant
 stop asking password when updating hosts file:
@@ -62,20 +69,23 @@ stop asking password when updating hosts file:
     Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
     %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
-    
-        
+
+### Windows: UAC Prompt
+
+You can use `cacls` or `icacls` to grant your user account permanent write permission to the system's hosts file. 
+You have to open an elevated command prompt; hold `❖ Win` and press `X`, then choose "Command Prompt (Admin)"
+
+    cacls %SYSTEMROOT%\system32\drivers\etc\hosts /E /G %USERNAME%:W
 
 ## Installing development version
 
 If you would like to install vagrant-hostsupdater on the development version perform the following:
 
-```
-git clone https://github.com/cogitatio/vagrant-hostsupdater
-cd vagrant-hostsupdater
-git checkout develop
-gem build vagrant-hostsupdater.gemspec
-vagrant plugin install vagrant-hostsupdater-*.gem
-```
+    git clone https://github.com/cogitatio/vagrant-hostsupdater
+    cd vagrant-hostsupdater
+    git checkout develop
+    gem build vagrant-hostsupdater.gemspec
+    vagrant plugin install vagrant-hostsupdater-*.gem
 
 ## Contributing
 
@@ -87,6 +97,10 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 
 ## Versions
+
+### HEAD
+* Bugfix: Windows users get UAC prompt [#40](/../../issues/40)
+* Misc: Added note to suppress UAC prompts
 
 ### 1.0.1
 * Bugfix: Fixing `up` issue on initialize [#28](/../../issues/28)

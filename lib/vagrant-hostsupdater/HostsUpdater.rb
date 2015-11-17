@@ -80,6 +80,15 @@ module VagrantPlugins
         content = entries.join("\n").strip.concat("\n")
         if !File.writable_real?(@@hosts_path)
           sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+        elsif Vagrant::Util::Platform.windows?
+          require 'tmpdir'
+          uuid = @machine.id || @machine.config.hostsupdater.id
+          tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid + '.cmd')
+          File.open(tmpPath, "w") do |tmpFile|
+            entries.each { |line| tmpFile.puts(">>\"#{@@hosts_path}\" echo #{line}") }
+          end
+          sudo(tmpPath)
+          File.delete(tmpPath)
         else
           content = "\n" + content
           hostsFile = File.open(@@hosts_path, "a")
@@ -91,7 +100,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
-        if !File.writable_real?(@@hosts_path)
+        if !File.writable_real?(@@hosts_path) || Vagrant::Util::Platform.windows?
           sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
         else
           hosts = ""
@@ -114,7 +123,11 @@ module VagrantPlugins
       def sudo(command)
         return if !command
         if Vagrant::Util::Platform.windows?
-          `#{command}`
+          require 'win32ole'
+          args = command.split(" ")
+          command = args.shift
+          sh = WIN32OLE.new('Shell.Application')
+          sh.ShellExecute(command, args.join(" "), '', 'runas', 0)
         else
           `sudo #{command}`
         end
