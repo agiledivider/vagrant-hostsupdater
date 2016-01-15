@@ -77,7 +77,7 @@ module VagrantPlugins
 
       def addToHosts(entries)
         return if entries.length == 0
-        content = entries.join("\n").strip.concat("\n")
+        content = entries.join("\n").strip
         if !File.writable_real?(@@hosts_path)
           if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
             STDERR.puts "Failed to add hosts, could not use sudo"
