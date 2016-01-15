@@ -53,7 +53,7 @@ module VagrantPlugins
 
       def removeHostEntries
         if !@machine.id and !@machine.config.hostsupdater.id
-          @ui.info "No machine id, nothing removed from #@@hosts_path"
+          @ui.info "[vagrant-hostsupdater] No machine id, nothing removed from #@@hosts_path"
           return
         end
         file = File.open(@@hosts_path, "rb")
