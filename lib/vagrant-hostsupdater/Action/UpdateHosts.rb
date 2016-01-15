@@ -13,7 +13,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          @ui.info "Checking for host entries"
+          @ui.info "[vagrant-hostsupdater] Checking for host entries"
           addHostEntries()
           @app.call(env)
         end
