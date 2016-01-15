@@ -79,7 +79,10 @@ module VagrantPlugins
         return if entries.length == 0
         content = entries.join("\n").strip.concat("\n")
         if !File.writable_real?(@@hosts_path)
-          sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+          if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+            STDERR.puts "Failed to add hosts, could not use sudo"
+            adviseOnSudo
+          end
         else
           content = "\n" + content
           hostsFile = File.open(@@hosts_path, "a")
@@ -92,7 +95,10 @@ module VagrantPlugins
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if !File.writable_real?(@@hosts_path)
-          sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
+          if !sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
+            STDERR.puts "Failed to remove hosts, could not use sudo"
+            adviseOnSudo
+          end
         else
           hosts = ""
           File.open(@@hosts_path).each do |line|
@@ -116,8 +122,13 @@ module VagrantPlugins
         if Vagrant::Util::Platform.windows?
           `#{command}`
         else
-          `sudo #{command}`
+          return system("sudo #{command}")
         end
+      end
+
+      def adviseOnSudo
+        STDERR.puts "Consider adding the following to your sudoers file."
+        STDERR.puts "(https://github.com/cogitatio/vagrant-hostsupdater#passwordless-sudo)"
       end
     end
   end
