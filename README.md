@@ -98,6 +98,9 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 ### 1.0.2
 * Feature: Added `remove_on_suspend` for `vagrant_halt` [#71](/../../issues/71)
+* Feature: Skip entries if they already exist [#69](/../../issues/69)
+* Bugfix: Fixing extra lines in /etc/hosts file [#87](/../../pull/87)
+* Misc: Fix yellow text on UI [#39](/../../issues/39)
 
 ### 1.0.1
 * Bugfix: Fixing `up` issue on initialize [#28](/../../issues/28)
