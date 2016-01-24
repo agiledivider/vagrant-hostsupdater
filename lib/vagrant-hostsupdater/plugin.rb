@@ -17,8 +17,7 @@ module VagrantPlugins
       end
 
       action_hook(:hostsupdater, :machine_action_up) do |hook|
-        hook.prepend(Action::RemoveHosts)
-        hook.after(Vagrant::Action::Builtin::SetHostname, Action::UpdateHosts)
+        hook.append(Action::UpdateHosts)
       end
 
       action_hook(:hostsupdater, :machine_action_provision) do |hook|

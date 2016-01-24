@@ -10,7 +10,7 @@ module VagrantPlugins
           ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
           ips.push(ip) if ip
           if options[:hostsupdater] == 'skip'
-            @ui.info 'Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+            @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
         return ips
@@ -33,11 +33,13 @@ module VagrantPlugins
         name = @machine.name
         entries = []
         ips.each do |ip|
-          hostEntries = getHostEntries(ip, hostnames, name, uuid)
-          hostEntries.each do |hostEntry|
-            escapedEntry = Regexp.quote(hostEntry)
-            if !hostsContents.match(/#{escapedEntry}/)
-              @ui.info "adding to (#@@hosts_path) : #{hostEntry}"
+          hostnames.each do |hostname|
+            entryPattern = hostEntryPattern(ip, hostname)
+
+            if hostsContents.match(/#{entryPattern}/)
+              @ui.info "[vagrant-hostsupdater]   found entry for: #{ip} #{hostname}"
+            else
+              hostEntry = createHostEntry(ip, hostname, name, uuid)
               entries.push(hostEntry)
             end
           end
@@ -51,7 +53,7 @@ module VagrantPlugins
 
       def removeHostEntries
         if !@machine.id and !@machine.config.hostsupdater.id
-          @ui.warn "No machine id, nothing removed from #@@hosts_path"
+          @ui.info "[vagrant-hostsupdater] No machine id, nothing removed from #@@hosts_path"
           return
         end
         file = File.open(@@hosts_path, "rb")
@@ -67,19 +69,30 @@ module VagrantPlugins
         %Q(#{ip}  #{hostnames.join(' ')}  #{signature(name, uuid)})
       end
 
-      def getHostEntries(ip, hostnames, name, uuid = self.uuid)
-        entries = []
-        hostnames.each do |hostname|
-          entries.push(%Q(#{ip}  #{hostname}  #{signature(name, uuid)}))
-        end
-        return entries
+      def createHostEntry(ip, hostname, name, uuid = self.uuid)
+        %Q(#{ip}  #{hostname}  #{signature(name, uuid)})
+      end
+
+      # Create a regular expression that will match *any* entry describing the
+      # given IP/hostname pair. This is intentionally generic in order to
+      # recognize entries created by the end user.
+      def hostEntryPattern(ip, hostname)
+        Regexp.new('^\s*' + ip + '\s+' + hostname + '\s*(#.*)?$')
       end
 
       def addToHosts(entries)
         return if entries.length == 0
-        content = entries.join("\n").strip.concat("\n")
+        content = entries.join("\n").strip
+
+        @ui.info "[vagrant-hostsupdater] Writing the following entries to (#@@hosts_path)"
+        @ui.info "[vagrant-hostsupdater]   " + entries.join("\n[vagrant-hostsupdater]   ")
+        @ui.info "[vagrant-hostsupdater] This operation requires administrative access. You may " +
+          "skip it by manually adding equivalent entries to the hosts file."
         if !File.writable_real?(@@hosts_path)
-          sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+          if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+            @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
+            adviseOnSudo
+          end
         else
           content = "\n" + content
           hostsFile = File.open(@@hosts_path, "a")
@@ -92,7 +105,10 @@ module VagrantPlugins
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if !File.writable_real?(@@hosts_path)
-          sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
+          if !sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
+            @ui.error "[vagrant-hostsupdater] Failed to remove hosts, could not use sudo"
+            adviseOnSudo
+          end
         else
           hosts = ""
           File.open(@@hosts_path).each do |line|
@@ -116,8 +132,13 @@ module VagrantPlugins
         if Vagrant::Util::Platform.windows?
           `#{command}`
         else
-          `sudo #{command}`
+          return system("sudo #{command}")
         end
+      end
+
+      def adviseOnSudo
+        @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
+        @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#passwordless-sudo"
       end
     end
   end

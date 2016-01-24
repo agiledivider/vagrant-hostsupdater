@@ -1,4 +1,4 @@
-Copyright (c) 2013 Falk Kühnel
+Copyright (c) 2016 Falk Kühnel
 
 MIT License
 

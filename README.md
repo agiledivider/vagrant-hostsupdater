@@ -13,7 +13,7 @@ This plugin adds an entry to your /etc/hosts file on the host system.
 On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
 
 On **halt**, **destroy**, and **suspend**, those entries will be removed again.
-By setting the `config.hostsupdater.remove_on_suspend  = false`, **suspend** will not remove them. 
+By setting the `config.hostsupdater.remove_on_suspend  = false`, **suspend** and **halt** will not remove them. 
 
 
 ## Installation
@@ -52,6 +52,14 @@ Example:
         netmask: "255.255.240.0",
         hostsupdater: "skip"
         
+### Keeping Host Entries After Suspend/Halt
+
+To keep your /etc/hosts file unchanged simply add the line below to your `VagrantFile`:
+
+    config.hostsupdater.resume_on_suspend = false
+    
+This disables vagrant-hostsupdater from running on **suspend** and **halt**.
+        
 
 ## Passwordless sudo
 
@@ -87,6 +95,12 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 
 ## Versions
+
+### 1.0.2
+* Feature: Added `remove_on_suspend` for `vagrant_halt` [#71](/../../issues/71)
+* Feature: Skip entries if they already exist [#69](/../../issues/69)
+* Bugfix: Fixing extra lines in /etc/hosts file [#87](/../../pull/87)
+* Misc: Fix yellow text on UI [#39](/../../issues/39)
 
 ### 1.0.1
 * Bugfix: Fixing `up` issue on initialize [#28](/../../issues/28)
