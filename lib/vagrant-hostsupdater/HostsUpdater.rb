@@ -13,6 +13,12 @@ module VagrantPlugins
             @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
+		
+		network = @machine.provider.driver.read_guest_ip
+		if network["ip"]
+		  ips.push( network["ip"] ) unless ips.include? network["ip"]
+		end
+		
         return ips
       end
 
