@@ -16,24 +16,45 @@ module VagrantPlugins
         return ips
       end
 
-      def getHostnames
-        hostnames = Array(@machine.config.vm.hostname)
-        if @machine.config.hostsupdater.aliases
-          hostnames.concat(@machine.config.hostsupdater.aliases)
+      # Get a hash of hostnames indexed by ip, e.g. { 'ip1': ['host1'], 'ip2': ['host2', 'host3'] }
+      def getHostnames(ips)
+        hostnames = Hash.new { |h, k| h[k] = [] }
+
+        case @machine.config.hostsupdater.aliases
+        when Array
+          # simple list of aliases to link to all ips
+          ips.each do |ip|
+            hostnames[ip] += @machine.config.hostsupdater.aliases
+          end
+        when Hash
+          # complex definition of aliases for various ips
+          @machine.config.hostsupdater.aliases.each do |ip, hosts|
+            hostnames[ip] += Array(hosts)
+          end
         end
+
+        # handle default hostname(s) if not already specified in the aliases
+        Array(@machine.config.vm.hostname).each do |host|
+          if hostnames.none? { |k, v| v.include?(host) }
+            ips.each do |ip|
+              hostnames[ip].unshift host
+            end
+          end
+        end
+
         return hostnames
       end
 
-      def addHostEntries()
+      def addHostEntries
         ips = getIps
-        hostnames = getHostnames
+        hostnames = getHostnames(ips)
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
         name = @machine.name
         entries = []
         ips.each do |ip|
-          hostnames.each do |hostname|
+          hostnames[ip].each do |hostname|
             entryPattern = hostEntryPattern(ip, hostname)
 
             if hostsContents.match(/#{entryPattern}/)
