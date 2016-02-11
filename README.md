@@ -56,7 +56,7 @@ Example:
 
 To keep your /etc/hosts file unchanged simply add the line below to your `VagrantFile`:
 
-    config.hostsupdater.resume_on_suspend = false
+    config.hostsupdater.remove_on_suspend = false
     
 This disables vagrant-hostsupdater from running on **suspend** and **halt**.
         
