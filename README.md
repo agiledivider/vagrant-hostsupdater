@@ -70,8 +70,16 @@ stop asking password when updating hosts file:
     Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
     %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
-    
-        
+
+Note: If vagrant still asks for a password on commands that trigger the `VAGRANT_HOSTS_REMOVE` alias above (like
+**halt** or **suspend**), this might indicate that the location of **sed** in the `VAGRANT_HOSTS_REMOVE` alias is
+pointing to the wrong location. The solution is to find the location of **sed** (ex. `which sed`) and
+replace that location in the `VAGRANT_HOSTS_REMOVE` alias. For example, on some newer Ubuntu versions (seen as
+early as Ubuntu 14.04 with 4.2.0-30-generic kernel - thanks to austinprey), the command portion of that line
+should change from `/usr/bin/sed` to `/bin/sed` like this:
+
+    Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts
+
 
 ## Installing development version
 
