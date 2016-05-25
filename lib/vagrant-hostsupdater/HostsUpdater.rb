@@ -13,6 +13,12 @@ module VagrantPlugins
             @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
+
+        if @machine.provider_name == :lxc
+          ip = @machine.provider.capability(:public_address)
+          ips.push(ip)
+        end
+
         return ips
       end
 
