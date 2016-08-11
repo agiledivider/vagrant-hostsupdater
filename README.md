@@ -82,7 +82,12 @@ To keep your /etc/hosts file unchanged simply add the line below to your `Vagran
 This disables vagrant-hostsupdater from running on **suspend** and **halt**.
         
 
-## Passwordless sudo
+## Suppressing prompts for elevating privileges
+
+These prompts exist to prevent anything that is being run by the user from inadvertently updating the hosts file. 
+If you understand the risks that go with supressing them, here's how to do it.
+
+### Linux/OS X: Passwordless sudo
 
 Add the following snippet to the top of the sudoers file using `sudo visudo`. It will make vagrant
 stop asking password when updating hosts file:
@@ -92,7 +97,14 @@ stop asking password when updating hosts file:
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
     %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
     
-## For AWS as a Provider
+### Windows: UAC Prompt
+
+You can use `cacls` or `icacls` to grant your user account permanent write permission to the system's hosts file. 
+You have to open an elevated command prompt; hold `❖ Win` and press `X`, then choose "Command Prompt (Admin)"
+
+    cacls %SYSTEMROOT%\system32\drivers\etc\hosts /E /G %USERNAME%:W 
+
+## Using AWS as a Provider
 
 If you'd like AWS as a provider using [vagrant-aws](https://github.com/mitchellh/vagrant-aws) or other plugin,
 this plugin will detect the instance public IP by the tag infomations.  
@@ -108,9 +120,8 @@ For example, [vagrant-aws](https://github.com/mitchellh/vagrant-aws) configures 
     end
 
 * [AWS CLI](https://aws.amazon.com/cli/) is required
-* Make the tag infomations be unique for the instance
+* The tag informations be unique for the instance
 * Enable Elastic IP for the instance
-
 
 ## Installing development version
 
@@ -134,6 +145,11 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 
 ## Versions
+
+### next version
+* Feature: Added AWS support [#74](/../../pull/74)
+* Bugfix: Windows users get UAC prompt [#40](/../../issues/40)
+* Misc: Added a note about suppressing UAC prompts
 
 ### 1.0.2
 * Feature: Added `remove_on_suspend` for `vagrant_halt` [#71](/../../issues/71)
