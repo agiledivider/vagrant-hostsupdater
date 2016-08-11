@@ -38,6 +38,27 @@ You currently only need the `hostname` and a `:private_network` network with a f
 
 This IP address and the hostname will be used for the entry in the `/etc/hosts` file.
 
+### Multiple private network adapters
+
+If you have multiple network adapters i.e.:
+
+    config.vm.network :private_network, ip: "10.0.0.1"
+    config.vm.network :private_network, ip: "10.0.0.2"
+
+you can specify which hostnames are bound to which IP by passing a hash mapping the IP of the network to an array of hostnames to create, e.g.:
+
+    config.hostsupdater.aliases = {
+        '10.0.0.1' => ['foo.com', 'bar.com'],
+        '10.0.0.2' => ['baz.com', 'bat.com']
+    }
+
+This will produce `/etc/hosts` entries like so:
+
+    10.0.0.1 foo.com
+    10.0.0.1 bar.com
+    10.0.0.2 baz.com
+    10.0.0.2 bat.com
+
 ### Skipping hostupdater
 
 To skip adding some entries to the /etc/hosts file add `hostsupdater: "skip"` option to network configuration:
