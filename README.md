@@ -92,7 +92,25 @@ stop asking password when updating hosts file:
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
     %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
     
-        
+## For AWS as a Provider
+
+If you'd like AWS as a provider using [vagrant-aws](https://github.com/mitchellh/vagrant-aws) or other plugin,
+this plugin will detect the instance public IP by the tag infomations.  
+For example, [vagrant-aws](https://github.com/mitchellh/vagrant-aws) configures a tag infomations like the following.
+
+    config.vm.provider :aws do |aws, override|
+      aws.tags = {
+        "Name" => "vagrant",
+        ...
+      }
+      aws.elastic_ip = true
+      ...
+    end
+
+* [AWS CLI](https://aws.amazon.com/cli/) is required
+* Make the tag infomations be unique for the instance
+* Enable Elastic IP for the instance
+
 
 ## Installing development version
 
