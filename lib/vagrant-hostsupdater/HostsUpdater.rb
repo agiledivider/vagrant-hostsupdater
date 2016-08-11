@@ -1,3 +1,5 @@
+require 'open3'
+
 module VagrantPlugins
   module HostsUpdater
     module HostsUpdater
@@ -5,12 +7,16 @@ module VagrantPlugins
 
       def getIps
         ips = []
-        @machine.config.vm.networks.each do |network|
-          key, options = network[0], network[1]
-          ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
-          ips.push(ip) if ip
-          if options[:hostsupdater] == 'skip'
-            @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+
+        if ip = getAwsPublicIp
+          ips.push(ip)
+        else
+          @machine.config.vm.networks.each do |network|
+            key, options = network[0], network[1]
+            ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
+            ips.push(ip) if ip
+            if options[:hostsupdater] == 'skip'
+              @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
         return ips
@@ -160,6 +166,24 @@ module VagrantPlugins
       def adviseOnSudo
         @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
         @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#passwordless-sudo"
+
+      private
+
+      def getAwsPublicIp
+        aws_conf = @machine.config.vm.get_provider_config(:aws)
+        return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
+        filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
+        return nil if filters == ''
+        cmd = 'aws ec2 describe-instances --filter '+filters
+        stdout, stderr, stat = Open3.capture3(cmd)
+        @ui.error sprintf("Failed to execute '%s' : %s", cmd, stderr) if stderr != ''
+        return nil if stat.exitstatus != 0
+        begin
+          return JSON.parse(stdout)["Reservations"].first()["Instances"].first()["PublicIpAddress"]
+        rescue => e
+          @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
+          return nil
+        end
       end
     end
   end
