@@ -114,6 +114,15 @@ module VagrantPlugins
             @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
             adviseOnSudo
           end
+        elsif Vagrant::Util::Platform.windows?
+          require 'tmpdir'
+          uuid = @machine.id || @machine.config.hostsupdater.id
+          tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid + '.cmd')
+          File.open(tmpPath, "w") do |tmpFile|
+          entries.each { |line| tmpFile.puts(">>\"#{@@hosts_path}\" echo #{line}") }
+          end
+          sudo(tmpPath)
+          File.delete(tmpPath)
         else
           content = "\n" + content
           hostsFile = File.open(@@hosts_path, "a")
@@ -125,7 +134,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
-        if !File.writable_real?(@@hosts_path)
+        if !File.writable_real?(@@hosts_path) || Vagrant::Util::Platform.windows?
           if !sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
             @ui.error "[vagrant-hostsupdater] Failed to remove hosts, could not use sudo"
             adviseOnSudo
@@ -151,7 +160,11 @@ module VagrantPlugins
       def sudo(command)
         return if !command
         if Vagrant::Util::Platform.windows?
-          `#{command}`
+          require 'win32ole'
+          args = command.split(" ")
+          command = args.shift
+          sh = WIN32OLE.new('Shell.Application')
+          sh.ShellExecute(command, args.join(" "), '', 'runas', 0)
         else
           return system("sudo #{command}")
         end
@@ -159,7 +172,7 @@ module VagrantPlugins
 
       def adviseOnSudo
         @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
-        @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#passwordless-sudo"
+        @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#suppressing-prompts-for-elevating-privileges"
       end
     end
   end
