@@ -1,7 +1,11 @@
 module VagrantPlugins
   module HostsUpdater
     module HostsUpdater
-      @@hosts_path = Vagrant::Util::Platform.windows? ? File.expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
+      if ENV['VAGRANT_HOSTSUPDATER_PATH']
+        @@hosts_path = ENV['VAGRANT_HOSTSUPDATER_PATH']
+      else
+        @@hosts_path = Vagrant::Util::Platform.windows? ? File.expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
+      end
 
       def getIps
         ips = []
