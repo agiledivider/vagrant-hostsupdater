@@ -19,6 +19,14 @@ module VagrantPlugins
               @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
+
+        if @machine.provider_name == :libvirt
+          ssh_info = @machine.ssh_info
+          if ssh_info
+            ips.push(ssh_info[:host])
+          end
+        end
+
         return ips
       end
 
