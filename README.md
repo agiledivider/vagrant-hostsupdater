@@ -80,8 +80,11 @@ replace that location in the `VAGRANT_HOSTS_REMOVE` alias. For example, on some 
 early as Ubuntu 14.04 with 4.2.0-30-generic kernel - thanks to austinprey), the command portion of that line
 should change from `/usr/bin/sed` to `/bin/sed` like this:
 
-    Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts
+  `Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts`
 
+  For MacOS, the location of **sed** is `/usr/bin/sed`, so MacOS users should update the snippet accordingly:
+
+  `Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts`
 
 ## Installing development version
 
