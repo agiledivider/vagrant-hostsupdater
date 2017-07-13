@@ -107,7 +107,7 @@ module VagrantPlugins
             adviseOnSudo
           end
         else
-          content = "\n" + content
+          content = "\n" + content + "\n"
           hostsFile = File.open(@@hosts_path, "a")
           hostsFile.write(content)
           hostsFile.close()
@@ -127,6 +127,7 @@ module VagrantPlugins
           File.open(@@hosts_path).each do |line|
             hosts << line unless line.include?(hashedId)
           end
+          hosts.strip!
           hostsFile = File.open(@@hosts_path, "w")
           hostsFile.write(hosts)
           hostsFile.close()
