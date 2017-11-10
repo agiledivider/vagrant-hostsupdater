@@ -66,7 +66,7 @@ This disables vagrant-hostsupdater from running on **suspend** and **halt**.
 To allow vagrant to automatically update the hosts file without asking for a sudo password, add the following snippet to a new sudoers file include, i.e. `sudo visudo -f /etc/sudoers.d/vagrant_hostsupdater`:
 
     # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
-    Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
+    Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c 'echo "*" >> /etc/hosts'
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/env sed -i -e /*/ d /etc/hosts
     %sudo ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
 
