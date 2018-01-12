@@ -63,28 +63,26 @@ This disables vagrant-hostsupdater from running on **suspend** and **halt**.
 
 ## Passwordless sudo
 
-To allow vagrant to automatically update the hosts file without asking for a sudo password, add the following snippet to a new sudoers file include, i.e. `sudo visudo -f /etc/sudoers.d/vagrant_hostsupdater`:
+To allow vagrant to automatically update the hosts file without asking for a sudo password, add one of the following snippets to a new sudoers file include, i.e. `sudo visudo -f /etc/sudoers.d/vagrant_hostsupdater`.
+
+For Ubuntu and most Linux environments:
 
     # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
     Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c 'echo "*" >> /etc/hosts'
-    Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/env sed -i -e /*/ d /etc/hosts
+    Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts
     %sudo ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
 
-Notes:
+For MacOS:
 
-- For MacOS, change %sudo to %admin on the last line above
+    # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
+    Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
+    Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
+    %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
+
 - If vagrant still asks for a password on commands that trigger the `VAGRANT_HOSTS_REMOVE` alias above (like
 **halt** or **suspend**), this might indicate that the location of **sed** in the `VAGRANT_HOSTS_REMOVE` alias is
 pointing to the wrong location. The solution is to find the location of **sed** (ex. `which sed`) and
-replace that location in the `VAGRANT_HOSTS_REMOVE` alias. For example, on some newer Ubuntu versions (seen as
-early as Ubuntu 14.04 with 4.2.0-30-generic kernel - thanks to austinprey), the command portion of that line
-should change from `/usr/bin/sed` to `/bin/sed` like this:
-
-  `Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts`
-
-  For MacOS, the location of **sed** is `/usr/bin/sed`, so MacOS users should update the snippet accordingly:
-
-  `Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts`
+replace that location in the `VAGRANT_HOSTS_REMOVE` alias.
 
 ## Installing development version
 
