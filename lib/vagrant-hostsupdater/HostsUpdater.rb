@@ -23,6 +23,9 @@ module VagrantPlugins
         if @machine.provider_name == :lxc
           ip = @machine.provider.capability(:public_address)
           ips.push(ip)
+        elsif @machine.provider_name == :docker
+          ip = @machine.provider.capability(:public_address)
+          ips.push(ip)
         end
 
         return ips
