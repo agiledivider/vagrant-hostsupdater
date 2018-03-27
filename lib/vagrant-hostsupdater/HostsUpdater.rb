@@ -1,3 +1,5 @@
+require 'open3'
+
 module VagrantPlugins
   module HostsUpdater
     module HostsUpdater
@@ -11,12 +13,16 @@ module VagrantPlugins
 
       def getIps
         ips = []
-        @machine.config.vm.networks.each do |network|
-          key, options = network[0], network[1]
-          ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
-          ips.push(ip) if ip
-          if options[:hostsupdater] == 'skip'
-            @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+
+        if ip = getAwsPublicIp
+          ips.push(ip)
+        else
+          @machine.config.vm.networks.each do |network|
+            key, options = network[0], network[1]
+            ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
+            ips.push(ip) if ip
+            if options[:hostsupdater] == 'skip'
+              @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
           end
         end
 
@@ -26,29 +32,55 @@ module VagrantPlugins
         elsif @machine.provider_name == :docker
           ip = @machine.provider.capability(:public_address)
           ips.push(ip)
+        elsif @machine.provider_name == :libvirt
+          ssh_info = @machine.ssh_info
+          if ssh_info
+            ips.push(ssh_info[:host])
+          end
         end
 
         return ips
       end
 
-      def getHostnames
-        hostnames = Array(@machine.config.vm.hostname)
-        if @machine.config.hostsupdater.aliases
-          hostnames.concat(@machine.config.hostsupdater.aliases)
+      # Get a hash of hostnames indexed by ip, e.g. { 'ip1': ['host1'], 'ip2': ['host2', 'host3'] }
+      def getHostnames(ips)
+        hostnames = Hash.new { |h, k| h[k] = [] }
+
+        case @machine.config.hostsupdater.aliases
+        when Array
+          # simple list of aliases to link to all ips
+          ips.each do |ip|
+            hostnames[ip] += @machine.config.hostsupdater.aliases
+          end
+        when Hash
+          # complex definition of aliases for various ips
+          @machine.config.hostsupdater.aliases.each do |ip, hosts|
+            hostnames[ip] += Array(hosts)
+          end
         end
+
+        # handle default hostname(s) if not already specified in the aliases
+        Array(@machine.config.vm.hostname).each do |host|
+          if hostnames.none? { |k, v| v.include?(host) }
+            ips.each do |ip|
+              hostnames[ip].unshift host
+            end
+          end
+        end
+
         return hostnames
       end
 
-      def addHostEntries()
+      def addHostEntries
         ips = getIps
-        hostnames = getHostnames
+        hostnames = getHostnames(ips)
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
         name = @machine.name
         entries = []
         ips.each do |ip|
-          hostnames.each do |hostname|
+          hostnames[ip].each do |hostname|
             entryPattern = hostEntryPattern(ip, hostname)
 
             if hostsContents.match(/#{entryPattern}/)
@@ -109,6 +141,15 @@ module VagrantPlugins
             @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
             adviseOnSudo
           end
+        elsif Vagrant::Util::Platform.windows?
+          require 'tmpdir'
+          uuid = @machine.id || @machine.config.hostsupdater.id
+          tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid + '.cmd')
+          File.open(tmpPath, "w") do |tmpFile|
+          entries.each { |line| tmpFile.puts(">>\"#{@@hosts_path}\" echo #{line}") }
+          end
+          sudo(tmpPath)
+          File.delete(tmpPath)
         else
           content = "\n" + content + "\n"
           hostsFile = File.open(@@hosts_path, "a")
@@ -120,7 +161,7 @@ module VagrantPlugins
       def removeFromHosts(options = {})
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
-        if !File.writable_real?(@@hosts_path)
+        if !File.writable_real?(@@hosts_path) || Vagrant::Util::Platform.windows?
           if !sudo(%Q(sed -i -e '/#{hashedId}/ d' #@@hosts_path))
             @ui.error "[vagrant-hostsupdater] Failed to remove hosts, could not use sudo"
             adviseOnSudo
@@ -156,8 +197,12 @@ module VagrantPlugins
 
       def sudo(command)
         return if !command
-        if @isWindowsHost
-          `#{command}`
+        if Vagrant::Util::Platform.windows?
+          require 'win32ole'
+          args = command.split(" ")
+          command = args.shift
+          sh = WIN32OLE.new('Shell.Application')
+          sh.ShellExecute(command, args.join(" "), '', 'runas', 0)
         else
           return system("sudo #{command}")
         end
@@ -165,7 +210,25 @@ module VagrantPlugins
 
       def adviseOnSudo
         @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
-        @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#passwordless-sudo"
+        @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#suppressing-prompts-for-elevating-privileges"
+
+      private
+
+      def getAwsPublicIp
+        aws_conf = @machine.config.vm.get_provider_config(:aws)
+        return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
+        filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
+        return nil if filters == ''
+        cmd = 'aws ec2 describe-instances --filter '+filters
+        stdout, stderr, stat = Open3.capture3(cmd)
+        @ui.error sprintf("Failed to execute '%s' : %s", cmd, stderr) if stderr != ''
+        return nil if stat.exitstatus != 0
+        begin
+          return JSON.parse(stdout)["Reservations"].first()["Instances"].first()["PublicIpAddress"]
+        rescue => e
+          @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
+          return nil
+        end
       end
     end
   end
