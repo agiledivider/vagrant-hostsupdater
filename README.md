@@ -162,7 +162,10 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 ### 1.1.0
 * Feature: Added AWS support [#74](/../../pull/74)
+* Feature: Added libvirt provider [#122](/../../pull/122)
+* Feature: Add support for multiple private network adapters [#96](/../../pull/96)
 * Bugfix: Windows users get UAC prompt [#40](/../../issues/40)
+* Bugfix: Documentation update and type fix
 * Misc: Added a note about suppressing UAC prompts
 
 ### 1.0.2
