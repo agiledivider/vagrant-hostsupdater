@@ -3,7 +3,13 @@ require 'open3'
 module VagrantPlugins
   module HostsUpdater
     module HostsUpdater
-      @@hosts_path = Vagrant::Util::Platform.windows? ? File.expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
+      if ENV['VAGRANT_HOSTSUPDATER_PATH']
+        @@hosts_path = ENV['VAGRANT_HOSTSUPDATER_PATH']
+      else
+        @@hosts_path = Vagrant::Util::Platform.windows? ? File.expand_path('system32/drivers/etc/hosts', ENV['windir']) : '/etc/hosts'
+      end
+      @isWindowsHost = Vagrant::Util::Platform.windows?
+      @@ssh_known_hosts_path = '~/.ssh/known_hosts'
 
       def getIps
         ips = []
@@ -20,7 +26,13 @@ module VagrantPlugins
           end
         end
 
-        if @machine.provider_name == :libvirt
+        if @machine.provider_name == :lxc
+          ip = @machine.provider.capability(:public_address)
+          ips.push(ip)
+        elsif @machine.provider_name == :docker
+          ip = @machine.provider.capability(:public_address)
+          ips.push(ip)
+        elsif @machine.provider_name == :libvirt
           ssh_info = @machine.ssh_info
           if ssh_info
             ips.push(ssh_info[:host])
@@ -96,7 +108,8 @@ module VagrantPlugins
         uuid = @machine.id || @machine.config.hostsupdater.id
         hashedId = Digest::MD5.hexdigest(uuid)
         if hostsContents.match(/#{hashedId}/)
-            removeFromHosts
+          removeFromHosts
+          removeFromSshKnownHosts
         end
       end
 
@@ -121,9 +134,9 @@ module VagrantPlugins
 
         @ui.info "[vagrant-hostsupdater] Writing the following entries to (#@@hosts_path)"
         @ui.info "[vagrant-hostsupdater]   " + entries.join("\n[vagrant-hostsupdater]   ")
-        @ui.info "[vagrant-hostsupdater] This operation requires administrative access. You may " +
-          "skip it by manually adding equivalent entries to the hosts file."
         if !File.writable_real?(@@hosts_path)
+          @ui.info "[vagrant-hostsupdater] This operation requires administrative access. You may " +
+                       "skip it by manually adding equivalent entries to the hosts file."
           if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
             @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
             adviseOnSudo
@@ -138,7 +151,7 @@ module VagrantPlugins
           sudo(tmpPath)
           File.delete(tmpPath)
         else
-          content = "\n" + content
+          content = "\n" + content + "\n"
           hostsFile = File.open(@@hosts_path, "a")
           hostsFile.write(content)
           hostsFile.close()
@@ -158,13 +171,24 @@ module VagrantPlugins
           File.open(@@hosts_path).each do |line|
             hosts << line unless line.include?(hashedId)
           end
+          hosts.strip!
           hostsFile = File.open(@@hosts_path, "w")
           hostsFile.write(hosts)
           hostsFile.close()
         end
       end
 
-
+      def removeFromSshKnownHosts
+        if !@isWindowsHost
+          hostnames = getHostnames
+          hostnames.each do |hostname|
+            command = %Q(sed -i -e '/#{hostname}/ d' #@@ssh_known_hosts_path)
+            if system(command)
+              @ui.info "[vagrant-hostsupdater] Removed host: #{hostname} from ssh_known_hosts file: #@@ssh_known_hosts_path"
+            end
+          end
+        end
+      end
 
       def signature(name, uuid = self.uuid)
         hashedId = Digest::MD5.hexdigest(uuid)

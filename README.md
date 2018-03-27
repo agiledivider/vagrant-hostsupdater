@@ -10,7 +10,7 @@
 
 This plugin adds an entry to your /etc/hosts file on the host system.
 
-On **up**, **resume** and **reload** commands, it tries to add the information, if its not already existant in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
+On **up**, **resume** and **reload** commands, it tries to add the information, if it does not already exist in your hosts file. If it needs to be added, you will be asked for an administrator password, since it uses sudo to edit the file.
 
 On **halt**, **destroy**, and **suspend**, those entries will be removed again.
 By setting the `config.hostsupdater.remove_on_suspend  = false`, **suspend** and **halt** will not remove them. 
@@ -89,13 +89,27 @@ If you understand the risks that go with supressing them, here's how to do it.
 
 ### Linux/OS X: Passwordless sudo
 
-Add the following snippet to the top of the sudoers file using `sudo visudo`. It will make vagrant
-stop asking password when updating hosts file:
+To allow vagrant to automatically update the hosts file without asking for a sudo password, add one of the following snippets to a new sudoers file include, i.e. `sudo visudo -f /etc/sudoers.d/vagrant_hostsupdater`.
+
+For Ubuntu and most Linux environments:
+
+    # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
+    Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c 'echo "*" >> /etc/hosts'
+    Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts
+    %sudo ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
+
+For MacOS:
 
     # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
     Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
     %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
+    
+    
+- If vagrant still asks for a password on commands that trigger the `VAGRANT_HOSTS_REMOVE` alias above (like
+**halt** or **suspend**), this might indicate that the location of **sed** in the `VAGRANT_HOSTS_REMOVE` alias is
+pointing to the wrong location. The solution is to find the location of **sed** (ex. `which sed`) and
+replace that location in the `VAGRANT_HOSTS_REMOVE` alias.
     
 ### Windows: UAC Prompt
 
@@ -146,7 +160,7 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 ## Versions
 
-### next version
+### 1.1.0
 * Feature: Added AWS support [#74](/../../pull/74)
 * Bugfix: Windows users get UAC prompt [#40](/../../issues/40)
 * Misc: Added a note about suppressing UAC prompts
