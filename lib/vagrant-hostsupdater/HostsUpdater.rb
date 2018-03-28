@@ -211,7 +211,7 @@ module VagrantPlugins
       def adviseOnSudo
         @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
         @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#suppressing-prompts-for-elevating-privileges"
-
+      end
       private
 
       def getAwsPublicIp
@@ -229,6 +229,7 @@ module VagrantPlugins
           @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
           return nil
         end
+      end
       end
     end
   end
