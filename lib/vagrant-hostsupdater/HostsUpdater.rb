@@ -23,6 +23,7 @@ module VagrantPlugins
             ips.push(ip) if ip
             if options[:hostsupdater] == 'skip'
               @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+            end
           end
         end
 
@@ -211,10 +212,12 @@ module VagrantPlugins
       def adviseOnSudo
         @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
         @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#suppressing-prompts-for-elevating-privileges"
+      end
 
       private
 
       def getAwsPublicIp
+        return nil if ! defined?(VagrantPlugins::AWS)
         aws_conf = @machine.config.vm.get_provider_config(:aws)
         return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
         filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
