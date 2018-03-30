@@ -17,12 +17,13 @@ module VagrantPlugins
         if ip = getAwsPublicIp
           ips.push(ip)
         else
-          @machine.config.vm.networks.each do |network|
-            key, options = network[0], network[1]
-            ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
-            ips.push(ip) if ip
-            if options[:hostsupdater] == 'skip'
-              @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+            @machine.config.vm.networks.each do |network|
+              key, options = network[0], network[1]
+              ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
+              ips.push(ip) if ip
+              if options[:hostsupdater] == 'skip'
+                @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+            end
           end
         end
 
@@ -42,7 +43,7 @@ module VagrantPlugins
           ips.push( '127.0.0.1' )
         end
         return ips
-      end
+        end
 
       # Get a hash of hostnames indexed by ip, e.g. { 'ip1': ['host1'], 'ip2': ['host2', 'host3'] }
       def getHostnames(ips)
@@ -182,7 +183,8 @@ module VagrantPlugins
 
       def removeFromSshKnownHosts
         if !@isWindowsHost
-          hostnames = getHostnames
+          ips = getIps
+          hostnames = getHostnames(ips)
           hostnames.each do |hostname|
             command = %Q(sed -i -e '/#{hostname}/ d' #@@ssh_known_hosts_path)
             if system(command)
@@ -214,11 +216,11 @@ module VagrantPlugins
         @ui.error "[vagrant-hostsupdater] Consider adding the following to your sudoers file:"
         @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#suppressing-prompts-for-elevating-privileges"
       end
-      private
 
       def getAwsPublicIp
+        return nil if ! Vagrant.has_plugin?("vagrant-aws")
         aws_conf = @machine.config.vm.get_provider_config(:aws)
-        return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
+        return nil if ! aws_conf.is_a?(VagrantPlugins::Aws::Config)
         filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
         return nil if filters == ''
         cmd = 'aws ec2 describe-instances --filter '+filters
@@ -231,7 +233,6 @@ module VagrantPlugins
           @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
           return nil
         end
-      end
       end
     end
   end
