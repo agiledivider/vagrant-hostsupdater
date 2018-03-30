@@ -165,6 +165,7 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 * Feature: Added libvirt provider [#122](/../../pull/122)
 * Feature: Add support for multiple private network adapters [#96](/../../pull/96)
 * Feature: Add support for VMs without private/public networking [#23](/../../issues/23)
+* Feature: Add Docker support [#149](/../../pull/149)
 * Bugfix: Windows users get UAC prompt [#40](/../../issues/40)
 * Bugfix: Documentation update and type fix
 * Misc: Added a note about suppressing UAC prompts
