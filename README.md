@@ -160,6 +160,9 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 ## Versions
 
+### 1.1.1
+* Bugfix: AWS Feature broke part of the code [#155](/../../issues/155)
+
 ### 1.1.0
 * Feature: Added AWS support [#74](/../../pull/74)
 * Feature: Added libvirt provider [#122](/../../pull/122)
