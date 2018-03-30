@@ -38,7 +38,9 @@ module VagrantPlugins
             ips.push(ssh_info[:host])
           end
         end
-
+        if not ips.any?
+          ips.push( '127.0.0.1' )
+        end
         return ips
       end
 
