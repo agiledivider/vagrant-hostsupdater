@@ -42,7 +42,7 @@ module VagrantPlugins
         if not ips.any?
           ips.push( '127.0.0.1' )
         end
-        return ips
+        return ips.uniq
         end
 
       # Get a hash of hostnames indexed by ip, e.g. { 'ip1': ['host1'], 'ip2': ['host2', 'host3'] }
@@ -185,10 +185,12 @@ module VagrantPlugins
         if !@isWindowsHost
           ips = getIps
           hostnames = getHostnames(ips)
-          hostnames.each do |hostname|
-            command = %Q(sed -i -e '/#{hostname}/ d' #@@ssh_known_hosts_path)
-            if system(command)
-              @ui.info "[vagrant-hostsupdater] Removed host: #{hostname} from ssh_known_hosts file: #@@ssh_known_hosts_path"
+          ips.each do |ip|
+            hostnames[ip].each do |hostname|
+              command = %Q(sed -i -e '/#{hostname}/ d' #@@ssh_known_hosts_path)
+              if system(command)
+                @ui.info "[vagrant-hostsupdater] Removed host: #{hostname} from ssh_known_hosts file: #@@ssh_known_hosts_path"
+              end
             end
           end
         end
