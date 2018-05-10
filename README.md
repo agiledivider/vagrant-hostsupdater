@@ -94,7 +94,7 @@ To allow vagrant to automatically update the hosts file without asking for a sud
 For Ubuntu and most Linux environments:
 
     # Allow passwordless startup of Vagrant with vagrant-hostsupdater.
-    Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c 'echo "*" >> /etc/hosts'
+    Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c echo "*" >> /etc/hosts
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /bin/sed -i -e /*/ d /etc/hosts
     %sudo ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
 
@@ -105,7 +105,7 @@ For MacOS:
     Cmnd_Alias VAGRANT_HOSTS_REMOVE = /usr/bin/sed -i -e /*/ d /etc/hosts
     %admin ALL=(root) NOPASSWD: VAGRANT_HOSTS_ADD, VAGRANT_HOSTS_REMOVE
     
-    
+- If vagrant still asks for a password on commands that trigger the `VAGRANT_HOSTS_ADD` alias above (like **up**), you might need to wrap the echo statement in quotes, i.e. `Cmnd_Alias VAGRANT_HOSTS_ADD = /bin/sh -c 'echo "*" >> /etc/hosts'`. This seems to be a problem with older versions of Linux and MacOS.
 - If vagrant still asks for a password on commands that trigger the `VAGRANT_HOSTS_REMOVE` alias above (like
 **halt** or **suspend**), this might indicate that the location of **sed** in the `VAGRANT_HOSTS_REMOVE` alias is
 pointing to the wrong location. The solution is to find the location of **sed** (ex. `which sed`) and
