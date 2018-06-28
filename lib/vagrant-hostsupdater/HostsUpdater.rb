@@ -137,14 +137,7 @@ module VagrantPlugins
 
         @ui.info "[vagrant-hostsupdater] Writing the following entries to (#@@hosts_path)"
         @ui.info "[vagrant-hostsupdater]   " + entries.join("\n[vagrant-hostsupdater]   ")
-        if !File.writable_real?(@@hosts_path)
-          @ui.info "[vagrant-hostsupdater] This operation requires administrative access. You may " +
-                       "skip it by manually adding equivalent entries to the hosts file."
-          if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
-            @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
-            adviseOnSudo
-          end
-        elsif Vagrant::Util::Platform.windows?
+        if Vagrant::Util::Platform.windows?
           require 'tmpdir'
           uuid = @machine.id || @machine.config.hostsupdater.id
           tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid + '.cmd')
@@ -154,10 +147,22 @@ module VagrantPlugins
           sudo(tmpPath)
           File.delete(tmpPath)
         else
-          content = "\n" + content + "\n"
-          hostsFile = File.open(@@hosts_path, "a")
-          hostsFile.write(content)
-          hostsFile.close()
+          # Check if the file is missing a newline before writing to it.
+          if !system("tail -c1 #@@hosts_path | read -r _")
+            content = "\n" + content
+          end
+          if !File.writable_real?(@@hosts_path)
+            @ui.info "[vagrant-hostsupdater] This operation requires administrative access. You may " +
+                     "skip it by manually adding equivalent entries to the hosts file."
+            if !sudo(%Q(sh -c 'echo "#{content}" >> #@@hosts_path'))
+              @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
+              adviseOnSudo
+            end
+          else
+            hostsFile = File.open(@@hosts_path, "a")
+            hostsFile.write(content)
+            hostsFile.close()
+          end
         end
       end
 
