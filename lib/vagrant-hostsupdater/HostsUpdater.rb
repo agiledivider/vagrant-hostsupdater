@@ -222,7 +222,7 @@ module VagrantPlugins
       def getAwsPublicIp
         return nil if ! Vagrant.has_plugin?("vagrant-aws")
         aws_conf = @machine.config.vm.get_provider_config(:aws)
-        return nil if ! aws_conf.is_a?(VagrantPlugins::Aws::Config)
+        return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
         filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
         return nil if filters == ''
         cmd = 'aws ec2 describe-instances --filter '+filters
