@@ -17,12 +17,18 @@ module VagrantPlugins
         if ip = getAwsPublicIp
           ips.push(ip)
         else
-            @machine.config.vm.networks.each do |network|
-              key, options = network[0], network[1]
-              ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
-              ips.push(ip) if ip
-              if options[:hostsupdater] == 'skip'
-                @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+          @machine.config.vm.networks.each do |network|
+            key, options = network[0], network[1]
+            if options[:hostsupdater] == "skip"
+              @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+              next
+            end
+            if key == :private_network || key == :public_network
+              ips.push(options[:ip])
+              next
+            end
+            if key == :forwarded_port
+              ips.push('127.0.0.1')
             end
           end
         end
