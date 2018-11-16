@@ -76,14 +76,13 @@ module VagrantPlugins
 
       def addHostEntries
         ips = getIps
-        hostnames = getHostnames(ips)
         file = File.open(@@hosts_path, "rb")
         hostsContents = file.read
         uuid = @machine.id
         name = @machine.name
         entries = []
-        ips.each do |ip|
-          hostnames[ip].each do |hostname|
+        getHostnames(ips).each do |ip, hostnames|
+          hostnames.each do |hostname|
             entryPattern = hostEntryPattern(ip, hostname)
 
             if hostsContents.match(/#{entryPattern}/)
