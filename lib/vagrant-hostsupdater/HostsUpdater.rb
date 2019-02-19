@@ -16,6 +16,8 @@ module VagrantPlugins
 
         if ip = getAwsPublicIp
           ips.push(ip)
+        elsif ip = getGooglePublicIp
+          ips.push(ip)
         else
             @machine.config.vm.networks.each do |network|
               key, options = network[0], network[1]
@@ -231,6 +233,23 @@ module VagrantPlugins
         return nil if stat.exitstatus != 0
         begin
           return JSON.parse(stdout)["Reservations"].first()["Instances"].first()["PublicIpAddress"]
+        rescue => e
+          @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
+          return nil
+        end
+      end
+
+      def getGooglePublicIp
+        return nil if ! defined?(VagrantPlugins::Google)
+        google_conf = @machine.config.vm.get_provider_config(:google)
+        return nil if ! google_conf.is_a?(VagrantPlugins::Google::Config)
+        cmd = 'gcloud compute instances list --filter="name=%s" --format="value(networkInterfaces[0].accessConfigs[0].natIP)"'
+        cmd = sprintf(cmd, google_conf.name)
+        stdout, stderr, stat = Open3.capture3(cmd)
+        @ui.error sprintf("Failed to execute '%s' : %s", cmd, stderr) if stderr != ''
+        return nil if stat.exitstatus != 0 || stdout == nil
+        begin
+          return stdout.strip
         rescue => e
           @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
           return nil
