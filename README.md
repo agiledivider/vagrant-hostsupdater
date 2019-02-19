@@ -141,6 +141,7 @@ For example, [vagrant-aws](https://github.com/mitchellh/vagrant-aws) configures 
 
 If you'd like a Google provider using [vagrant-google](https://github.com/mitchellh/vagrant-google), this plugin will detect the public IP from the name of the instance.
 [vagrant-google](https://github.com/mitchellh/vagrant-google) provides a default name, but you can specify your own as follows:
+
     config.vm.provider :google do |google, override|
       google.name = "somename"
       ...
