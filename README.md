@@ -137,6 +137,18 @@ For example, [vagrant-aws](https://github.com/mitchellh/vagrant-aws) configures 
 * The tag informations be unique for the instance
 * Enable Elastic IP for the instance
 
+## Using Google as a provider
+
+If you'd like a Google provider using [vagrant-google](https://github.com/mitchellh/vagrant-google), this plugin will detect the public IP from the name of the instance.
+[vagrant-google](https://github.com/mitchellh/vagrant-google) provides a default name, but you can specify your own as follows:
+
+    config.vm.provider :google do |google, override|
+      google.name = "somename"
+      ...
+    end
+
+* [Google Cloud SDK](https://cloud.google.com/sdk/) is required.
+
 ## Installing development version
 
 If you would like to install vagrant-hostsupdater on the development version perform the following:
