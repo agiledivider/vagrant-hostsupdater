@@ -247,9 +247,11 @@ module VagrantPlugins
         cmd = sprintf(cmd, google_conf.name)
         stdout, stderr, stat = Open3.capture3(cmd)
         @ui.error sprintf("Failed to execute '%s' : %s", cmd, stderr) if stderr != ''
-        return nil if stat.exitstatus != 0 || stdout == nil
+        ip = stdout.strip
+
+        return nil if stat.exitstatus != 0 || ip == nil || ip == ''
         begin
-          return stdout.strip
+          return ip
         rescue => e
           @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
           return nil
