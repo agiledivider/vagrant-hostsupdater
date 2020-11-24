@@ -16,13 +16,15 @@ module VagrantPlugins
 
         if ip = getAwsPublicIp
           ips.push(ip)
+        elsif ip = getGooglePublicIp
+          ips.push(ip)
         else
-          @machine.config.vm.networks.each do |network|
-            key, options = network[0], network[1]
-            ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
-            ips.push(ip) if ip
-            if options[:hostsupdater] == 'skip'
-              @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
+            @machine.config.vm.networks.each do |network|
+              key, options = network[0], network[1]
+              ip = options[:ip] if (key == :private_network || key == :public_network) && options[:hostsupdater] != "skip"
+              ips.push(ip) if ip
+              if options[:hostsupdater] == 'skip'
+                @ui.info '[vagrant-hostsupdater] Skipping adding host entries (config.vm.network hostsupdater: "skip" is set)'
             end
           end
         end
@@ -39,9 +41,11 @@ module VagrantPlugins
             ips.push(ssh_info[:host])
           end
         end
-
-        return ips
-      end
+        if not ips.any?
+          ips.push( '127.0.0.1' )
+        end
+        return ips.uniq
+        end
 
       # Get a hash of hostnames indexed by ip, e.g. { 'ip1': ['host1'], 'ip2': ['host2', 'host3'] }
       def getHostnames(ips)
@@ -119,7 +123,7 @@ module VagrantPlugins
       end
 
       def createHostEntry(ip, hostname, name, uuid = self.uuid)
-        %Q(#{ip}  #{hostname}  #{signature(name, uuid)})
+        %Q(#{ip}  #{hostname}  #{signature(name, uuid.to_s)})
       end
 
       # Create a regular expression that will match *any* entry describing the
@@ -181,11 +185,14 @@ module VagrantPlugins
 
       def removeFromSshKnownHosts
         if !@isWindowsHost
-          hostnames = getHostnames
-          hostnames.each do |hostname|
-            command = %Q(sed -i -e '/#{hostname}/ d' #@@ssh_known_hosts_path)
-            if system(command)
-              @ui.info "[vagrant-hostsupdater] Removed host: #{hostname} from ssh_known_hosts file: #@@ssh_known_hosts_path"
+          ips = getIps
+          hostnames = getHostnames(ips)
+          ips.each do |ip|
+            hostnames[ip].each do |hostname|
+              command = %Q(sed -i -e '/#{hostname}/ d' #@@ssh_known_hosts_path)
+              if system(command)
+                @ui.info "[vagrant-hostsupdater] Removed host: #{hostname} from ssh_known_hosts file: #@@ssh_known_hosts_path"
+              end
             end
           end
         end
@@ -214,10 +221,8 @@ module VagrantPlugins
         @ui.error "[vagrant-hostsupdater]   https://github.com/cogitatio/vagrant-hostsupdater#suppressing-prompts-for-elevating-privileges"
       end
 
-      private
-
       def getAwsPublicIp
-        return nil if ! defined?(VagrantPlugins::AWS)
+        return nil if ! Vagrant.has_plugin?("vagrant-aws")
         aws_conf = @machine.config.vm.get_provider_config(:aws)
         return nil if ! aws_conf.is_a?(VagrantPlugins::AWS::Config)
         filters = ( aws_conf.tags || [] ).map {|k,v| sprintf('"Name=tag:%s,Values=%s"', k, v) }.join(' ')
@@ -232,6 +237,19 @@ module VagrantPlugins
           @ui.error sprintf("Failed to get IP from the result of '%s' : %s", cmd, e.message)
           return nil
         end
+      end
+
+      def getGooglePublicIp
+        return nil if ! defined?(VagrantPlugins::Google)
+        google_conf = @machine.config.vm.get_provider_config(:google)
+        return nil if ! google_conf.is_a?(VagrantPlugins::Google::Config)
+        cmd = 'gcloud compute instances list --filter="name=%s" --format="value(networkInterfaces[0].accessConfigs[0].natIP)"'
+        cmd = sprintf(cmd, google_conf.name)
+        stdout, stderr, stat = Open3.capture3(cmd)
+        @ui.error "Failed to execute '#{cmd}' : #{stderr}" if stderr != ''
+        ip = stdout.strip
+        return nil if stat.exitstatus != 0 || ip == nil || ip == ''
+        return ip
       end
     end
   end
