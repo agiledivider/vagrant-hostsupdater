@@ -172,6 +172,9 @@ vagrant plugin install vagrant-hostsupdater-*.gem
 
 ## Versions
 
+### 1.2.0
+* Bugfix: Fixing null string [#188](/../../issues/188)
+
 ### 1.1.1
 * Bugfix: AWS Feature broke part of the code [#155](/../../issues/155)
 
