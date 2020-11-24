@@ -123,7 +123,7 @@ module VagrantPlugins
       end
 
       def createHostEntry(ip, hostname, name, uuid = self.uuid)
-        %Q(#{ip}  #{hostname}  #{signature(name, uuid)})
+        %Q(#{ip}  #{hostname}  #{signature(name, uuid.to_s)})
       end
 
       # Create a regular expression that will match *any* entry describing the
