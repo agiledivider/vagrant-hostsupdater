@@ -149,7 +149,7 @@ module VagrantPlugins
         elsif Vagrant::Util::Platform.windows?
           require 'tmpdir'
           uuid = @machine.id || @machine.config.hostsupdater.id
-          tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid + '.cmd')
+          tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid.to_s + '.cmd')
           File.open(tmpPath, "w") do |tmpFile|
           entries.each { |line| tmpFile.puts(">>\"#{@@hosts_path}\" echo #{line}") }
           end
