@@ -1,17 +1,10 @@
 module VagrantPlugins
   module HostsUpdater
     module Action
-      class CacheHosts
-        include HostsUpdater
+      class CacheHosts < BaseAction
 
-        def initialize(app, env)
-          @app = app
-          @machine = env[:machine]
-        end
-
-        def call(env)
+        def run(env)
           cacheHostEntries
-          @app.call(env)
         end
 
       end
