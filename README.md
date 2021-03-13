@@ -1,3 +1,19 @@
+# NOT MAINTAINED
+# USE AN ALTERNATIVE
+
+March 3, 2021
+
+Hi Everyone. @cgsmith here. I took maintenance over from @agiledivider (Falk Kühnel) in 2015. Myself and the company I worked for relied on Vagrant for our development machines and I relied on vagrant-hostsupdater for changing hosts files. When I found out he was no longer maintaining the project I reached out to him on Twitter and he was willing to let me maintain it and apply some much needed pull requests.
+
+Maintaining a large project is extremely rewarding. I enjoyed doing so but have stopped using Vagrant for development. There are other plugins to help you manage your hosts file or you can feel free to fork this one into your own. 
+
+Don't worry if you don't know Ruby... I didn't. I'm a PHP developer. I figured it out though and asked the right questions to get the problem solved. 
+
+So long... may we meet elsewhere on this vast planet.
+
+- Chris Smith
+
+
 # Vagrant::Hostsupdater
 
 [![Gem Version](https://badge.fury.io/rb/vagrant-hostsupdater.svg)](https://badge.fury.io/rb/vagrant-hostsupdater)
