@@ -1,6 +1,8 @@
-require "vagrant-hostsupdater/Action/UpdateHosts"
-require "vagrant-hostsupdater/Action/CacheHosts"
-require "vagrant-hostsupdater/Action/RemoveHosts"
+require_relative "HostsUpdater"
+require_relative "Action/BaseAction"
+require_relative "Action/UpdateHosts"
+require_relative "Action/CacheHosts"
+require_relative "Action/RemoveHosts"
 
 module VagrantPlugins
   module HostsUpdater
@@ -34,9 +36,6 @@ module VagrantPlugins
 
       action_hook(:hostsupdater, :machine_action_destroy) do |hook|
         hook.prepend(Action::CacheHosts)
-      end
-
-      action_hook(:hostsupdater, :machine_action_destroy) do |hook|
         hook.append(Action::RemoveHosts)
       end
 
