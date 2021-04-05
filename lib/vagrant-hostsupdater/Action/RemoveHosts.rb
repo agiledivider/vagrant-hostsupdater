@@ -5,15 +5,16 @@ module VagrantPlugins
 
         def run(env)
           machine_action = env[:machine_action]
-          if machine_action != :destroy || !@machine.id
-            if machine_action != :suspend || false != @machine.config.hostsupdater.remove_on_suspend
-              if machine_action != :halt || false != @machine.config.hostsupdater.remove_on_suspend
-                @ui.info "[vagrant-hostsupdater] Removing hosts"
-                removeHostEntries
-              else
-                @ui.info "[vagrant-hostsupdater] Removing hosts on suspend disabled"
-              end
+          if [:suspend, :halt].include? machine_action
+            if @machine.config.hostsupdater.remove_on_suspend == false
+              @ui.info "[vagrant-hostsupdater] Not removing hosts (remove_on_suspend false)"
+            else
+              @ui.info "[vagrant-hostsupdater] Removing hosts on suspend"
+              removeHostEntries
             end
+          else
+            @ui.info "[vagrant-hostsupdater] Removing hosts"
+            removeHostEntries
           end
         end
 

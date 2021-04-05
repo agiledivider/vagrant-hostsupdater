@@ -26,9 +26,9 @@ module VagrantPlugins
           # machines and having a static flag will result in a plugin being
           # executed just once.
           # https://github.com/agiledivider/vagrant-hostsupdater/issues/198
-          if not @@completed.key?(@machine.name)
+          if @machine.id and not @@completed.key?("#{self.class.name}-#{@machine.name}")
             run(env)
-            @@completed[@machine.name] = true
+            @@completed["#{self.class.name}-#{@machine.name}"] = true
           end
 
           @app.call(env)
