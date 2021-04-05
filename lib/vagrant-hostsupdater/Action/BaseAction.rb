@@ -21,9 +21,14 @@ module VagrantPlugins
         end
 
         def call(env)
-          if not @@completed.key?(self.class.name)
+          # Check whether the plugin has been executed for a particular
+          # VM as it may happen that a single Vagrantfile defines multiple
+          # machines and having a static flag will result in a plugin being
+          # executed just once.
+          # https://github.com/agiledivider/vagrant-hostsupdater/issues/198
+          if not @@completed.key?(@machine.name)
             run(env)
-            @@completed[self.class.name] = true
+            @@completed[@machine.name] = true
           end
 
           @app.call(env)
