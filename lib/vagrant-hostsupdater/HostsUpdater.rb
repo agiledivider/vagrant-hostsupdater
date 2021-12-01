@@ -145,15 +145,6 @@ module VagrantPlugins
             @ui.error "[vagrant-hostsupdater] Failed to add hosts, could not use sudo"
             adviseOnSudo
           end
-        elsif Vagrant::Util::Platform.windows?
-          require 'tmpdir'
-          uuid = @machine.id || @machine.config.hostsupdater.id
-          tmpPath = File.join(Dir.tmpdir, 'hosts-' + uuid.to_s + '.cmd')
-          File.open(tmpPath, "w") do |tmpFile|
-          entries.each { |line| tmpFile.puts(">>\"#{@@hosts_path}\" echo #{line}") }
-          end
-          sudo(tmpPath)
-          File.delete(tmpPath)
         else
           content = "\n" + content + "\n"
           hostsFile = File.open(@@hosts_path, "a")
